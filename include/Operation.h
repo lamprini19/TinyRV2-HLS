@@ -15,12 +15,12 @@ public:
               ac_int<32,true> op_1,
               ac_int<32,true> op_2,
               ac_int<3,false> c) {
-        operation = &o;
+        operation = o;
         destination = d;
         operand_1 = op_1;
         operand_2 = op_2;
         control = c;
     }
-}
+};
 
 #endif
