@@ -94,6 +94,11 @@ ac_int<32,true> Processor::execute(Operation op) {
     return (alu.*(op.operation))(op.operand_1, op.operand_2);
 }
 
+void Processor::write_back(ac_int<32,false> destination_reg, ac_int<32,true> value) {
+    ac_int<5,false> reg_addr = destination_reg.slc<5>(0);
+    R[reg_addr] = value;
+}
+
 void Processor::run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[256]) {
     PC = 50;
     std::cout << "Initial PC: " << PC << std::endl;
@@ -106,6 +111,7 @@ void Processor::run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[25
     Operation operation = decode_read(instruction);
     update_pc(operation);
     ac_int<32,true> result = execute(operation);
+    write_back(operation.destination, result);
 
     std::cout << std::endl;
 
@@ -137,6 +143,12 @@ void Processor::run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[25
               << " and " << operation.operand_2
               << " is " << result
               << " or in binary: " << result.to_string(AC_BIN,false,true)
+              << std::endl;
+
+    // test write_back
+    std::cout << "Value of register "
+              << operation.destination.to_string(AC_BIN,false,false)
+              << ": " << R[5]
               << std::endl;
 }
 
