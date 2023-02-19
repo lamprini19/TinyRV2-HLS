@@ -13,7 +13,7 @@ class Processor {
 
 private:
     ac_int<32,false> read_instruction(ac_int<32,false> instr_mem[256]);
-    Operation decode_read();
+    Operation decode_read(ac_int<32,false> instruction);
     void update_pc(Operation);
     ac_int<32,true> execute(Operation);
     void memory_write(ac_int<32,true> memory[256], ac_int<32,false> address, ac_int<32,true> value);

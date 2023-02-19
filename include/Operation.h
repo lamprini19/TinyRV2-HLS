@@ -2,15 +2,16 @@
 #define OPERATION_H
 
 #include "ac_int.h"
+#include "ALU.h"
 
 class Operation {
 public:
-    ac_int<32,true> (*operation)(ac_int<32,true>, ac_int<32,true>);
+    ac_int<32,true> (ALU::*operation)(ac_int<32,true>, ac_int<32,true>);
     ac_int<32,true> destination;
     ac_int<32,true> operand_1, operand_2;
     ac_int<3,false> control;
 
-    Operation(ac_int<32,true> (*o)(ac_int<32,true>, ac_int<32,true>),
+    Operation(ac_int<32,true> (ALU::*o)(ac_int<32,true>, ac_int<32,true>),
               ac_int<32,true> d,
               ac_int<32,true> op_1,
               ac_int<32,true> op_2,
