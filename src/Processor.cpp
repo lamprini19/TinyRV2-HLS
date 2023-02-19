@@ -88,6 +88,10 @@ void Processor::update_pc(Operation operation) {
     }
 }
 
+ac_int<32,true> Processor::execute(Operation op) {
+    return (alu.*(op.operation))(op.operand_1, op.operand_2);
+}
+
 void Processor::run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[256]) {
     this->PC = 50;
 
@@ -97,6 +101,7 @@ void Processor::run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[25
     ac_int<32,false> instruction = read_instruction(instr_mem);
     Operation operation = decode_read(instruction);
     update_pc(operation);
+    ac_int<32,true> result = execute(operation);
     
     // test read_instruction
     std::cout << "Instruction read: " 
@@ -115,7 +120,12 @@ void Processor::run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[25
               << "Operands: " << operation.operand_1 << " and " << operation.operand_2
               << std::endl;
 
-
+    // test execute
+    std::cout << "Result of adding 2 and 6 is "
+              << result
+              << " or in binary: "
+              << result.to_string(AC_BIN,false,true)
+              << std::endl;
 }
 
 
