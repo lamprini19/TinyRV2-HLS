@@ -2,8 +2,8 @@
 #include "Operation.h"
 #include "ALU.h"
 #include "Processor.h"
-#include "stdio.h"
 
+#include <iostream>
 
 ac_int<32,false> Processor::read_instruction(ac_int<32,false> instr_mem[256]) {
     return instr_mem[this->PC];
@@ -11,7 +11,9 @@ ac_int<32,false> Processor::read_instruction(ac_int<32,false> instr_mem[256]) {
 
 Operation Processor::decode_read(ac_int<32,false> instruction) {
     ac_int<7,false> opcode = instruction.slc<7>(0);
-    std::cout << "\n   Opcode is: " << opcode << std::endl;
+    std::cout << "Instruction opcode is: " << opcode
+              << " or in binary " << opcode.to_string(AC_BIN,false,true)
+              << std::endl;
     ac_int<32,true> (ALU::*operation)(ac_int<32,true>, ac_int<32,true>);
     switch(opcode) {
         case 1100111:
@@ -30,12 +32,12 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             ac_int<32,false> rs1 = instruction.slc<5>(15);
     	    ac_int<32,false> rs2 = instruction.slc<5>(20);
 
-            std::cout << "Add operation\n" << "rd: " << rd.to_string(AC_BIN,false,true) << std::endl;
-
             if(func3 == 0) {
                 if(func7 == 0) {
+                    std::cout << "ADD instruction" << std::endl;
                     operation = &ALU::add;
                     Operation op(operation, rd, R[rs1], R[rs2], 0);
+
                     return op;
     	        }  // else if ...
             } // else if ...
@@ -82,9 +84,9 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
 
 void Processor::update_pc(Operation operation) {
     if(operation.control == 1) {
-	// call jump function
+        // call jump function
     } else {
-	this->PC = this->PC + 1;
+        this->PC = this->PC + 1;
     }
 }
 
@@ -93,7 +95,9 @@ ac_int<32,true> Processor::execute(Operation op) {
 }
 
 void Processor::run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[256]) {
-    this->PC = 50;
+    PC = 50;
+    std::cout << "Initial PC: " << PC << std::endl;
+    std::cout << std::endl;
 
     R[4] = 2;
     R[7] = 6;
@@ -102,30 +106,37 @@ void Processor::run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[25
     Operation operation = decode_read(instruction);
     update_pc(operation);
     ac_int<32,true> result = execute(operation);
-    
+
+    std::cout << std::endl;
+
     // test read_instruction
     std::cout << "Instruction read: " 
               << instruction.to_string(AC_BIN,false,true)
               << std::endl;
 
-    // test update_pc
-    std::cout << "New PC is: "
-              << this->PC
-              << std::endl
-              << std::endl;
+    std::cout << std::endl;
 
     // test decode_read
     std::cout << "Instruction type: " << operation.control << std::endl
-              << "Destination: " << operation.destination.to_string(AC_BIN,false,true) << std::endl
-              << "Operands: " << operation.operand_1 << " and " << operation.operand_2
+              << "Destination Register: " << operation.destination
+              << " or in binary: " << operation.destination.to_string(AC_BIN,false,false) << std::endl
+              << "Operands: " << operation.operand_1
+              << " and " << operation.operand_2
               << std::endl;
+
+    std::cout << std::endl;
+
+    // test update_pc
+    std::cout << "New PC is: " << PC 
+              << std::endl;
+
+    std::cout << std::endl;
 
     // test execute
-    std::cout << "Result of adding 2 and 6 is "
-              << result
-              << " or in binary: "
-              << result.to_string(AC_BIN,false,true)
+    std::cout << "Result of adding " << operation.operand_1
+              << " and " << operation.operand_2
+              << " is " << result
+              << " or in binary: " << result.to_string(AC_BIN,false,true)
               << std::endl;
 }
-
 
