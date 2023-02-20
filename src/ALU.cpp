@@ -42,3 +42,14 @@ ac_int<32, true> ALU::shift_left(ac_int<32,true> op1, ac_int<32,true> op2, bool 
         return op1 >> op2;
     }
 }
+
+// Comparison Operations
+ac_int<32, true> ALU::less_than(ac_int<32,true> op1, ac_int<32,true> op2, bool sign) {
+    if(!sign) {
+        ac_int<32,false> uns1 = op1;
+        ac_int<32,false> uns2 = op2;
+        return uns1 < uns2;
+    } else {
+        return op1 < op2;
+    }
+}

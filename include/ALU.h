@@ -16,6 +16,8 @@ public:
     // shift operations
     ac_int<32,true> shift_left(ac_int<32,true>, ac_int<32,true>);
     ac_int<32,true> shift_right(ac_int<32,true>, ac_int<32,true>, bool);
-};
 
+    // comparison operations
+    ac_int<32,true> less_than(ac_int<32,true>, ac_int<32,true>, bool);
+};
 #endif
