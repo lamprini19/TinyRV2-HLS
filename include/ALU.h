@@ -12,6 +12,10 @@ public:
     ac_int<32,true> bwand(ac_int<32,true>, ac_int<32,true>);
     ac_int<32,true> bwor(ac_int<32,true>, ac_int<32,true>);
     ac_int<32,true> bwxor(ac_int<32,true>, ac_int<32,true>);
+
+    // shift operations
+    ac_int<32,true> shift_left(ac_int<32,true>, ac_int<32,true>);
+    ac_int<32,true> shift_right(ac_int<32,true>, ac_int<32,true>, bool);
 };
 
 #endif
