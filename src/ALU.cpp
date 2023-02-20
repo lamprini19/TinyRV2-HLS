@@ -64,13 +64,13 @@ ac_int<32, true> ALU::less_than_u(ac_int<32,true> op1, ac_int<32,true> op2) {
 }
 
 ac_int<32, true> ALU::greater_than(ac_int<32,true> op1, ac_int<32,true> op2) {
-    return op1 > op2;
+    return op1 >= op2;
 }
 
 ac_int<32, true> ALU::greater_than_u(ac_int<32,true> op1, ac_int<32,true> op2) {
     ac_int<32,false> uns1 = op1;
     ac_int<32,false> uns2 = op2;
-    return uns1 > uns2;
+    return uns1 >= uns2;
 }
 
 // Complex Operations
