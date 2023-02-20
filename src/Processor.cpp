@@ -201,7 +201,6 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             // lui
             ac_int<32,true> rd = instruction.slc<5>(7);
             ac_int<32,true> imm = instruction.slc<20>(12);
-            // ac_int<32,true> t12 = 12;
             operation = &ALU::shift_left;
             Operation op(operation, rd, imm, 12, 1);
             return op;
@@ -217,14 +216,43 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             return op;
             break;
             }
-        case 1100000:
+        case 3:
+            {
             // lw
-            break;
+            ac_int<32,true> rd = instruction.slc<5>(7);
+            ac_int<32,true> rs1 = instruction.slc<5>(15);
+            ac_int<32,true> imm = instruction.slc<12>(20);
+            // sign extend
+            ac_int<20,false> temp = -1;
+            ac_int<32,true> sext_imm = imm;
+            if(imm[11] == 1) { sext_imm.set_slc(12,temp); }
 
-        case 1100010:
+            operation = &ALU::add;
+            Operation op(operation, rd, imm, R[rs1], 2);
+            return op;
+            break;
+            }
+        case 35:
+            {
             // sw
+            ac_int<32,true> rs1 = instruction.slc<5>(15);
+            ac_int<32,true> rs2 = instruction.slc<5>(20);
+            // reconstruct S-type immediate
+            ac_int<32,true> imm;
+            ac_int<5,true> imm_part_1 = instruction.slc<5>(7);
+            ac_int<7,true> imm_part_2 = instruction.slc<7>(25);
+            imm.set_slc(0,imm_part_1);
+            imm.set_slc(5,imm_part_2);
+            // sign extend
+            ac_int<20,false> temp = -1;
+            ac_int<32,true> sext_imm = imm;
+            if(imm[11] == 1) { sext_imm.set_slc(12,temp); }
+            // create Operation object
+            operation = &ALU::add;
+            Operation op(operation, rs2, R[rs1], sext_imm, 3);
+            return op;
             break;
-
+            }
         case 1111011:
             // jal
             break;
