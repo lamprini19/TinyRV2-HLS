@@ -253,28 +253,119 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             return op;
             break;
             }
-        case 1111011:
+        case 111:
+            {
             // jal
+            ac_int<32,true> rd = instruction<5>(7);
+            ac_int<32,true> imm = instruction<20>(12);
+            // sign extend
+            ac_int<12,false> temp = -1;
+            ac_int<32,true> sext_imm = imm;
+            if(imm[19] == 1) { sext_imm.set_slc(12,temp); }
+            // create Operation object
+            operation = &ALU::add;
+            Operation op(operation, rd, PC, sext_imm, 4);
+            return op;
             break;
-
-        case 1110011:
+            }
+        case 103:
+            {
             // jalr (+jr)
+            ac_int<32,true> rd = instruction<5>(7);
+            ac_int<32,true> imm = instruction<12>(20);
+            ac_int<32,true> rs1 = instruction<5>(15);
+            // sign extend
+            ac_int<20,false> temp = -1;
+            ac_int<32,true> sext_imm = imm;
+            if(imm[11] == 1) { sext_imm.set_slc(20,temp); }
+            // create Operation object
+            operation = &ALU::add;
+            Operation op(operation, rd, R[rs1], sext_imm, 4);
+            return op;
             break;
-
-        case 1100011:
+            }
+        case 99:
+            {
             // conditional branch
+            ac_int<3,false> func3 = instruction.slc<3>(12);
+    	    ac_int<32,false> rs1 = instruction.slc<5>(15);
+            ac_int<32,false> rs2 = instruction.slc<5>(20);
+            // reconstruct B-type immediate
+            ac_int<32,true> imm = 0;
+            ac_int<4,true> imm_part_1 = instruction.slc<4>(1);
+            ac_int<5,true> imm_part_2 = instruction.slc<5>(5);
+            bool imm_part_3 = instruction[7];
+            imm.set_slc(1,imm_part_1);
+            imm.set_slc(5,imm_part_2);
+            imm[11] = imm_part_3;
+            // sign extend of immediate
+            ac_int<20,false> temp = -1;
+            std::cout << "imm: " << imm.to_string(AC_BIN,false,true) << std::endl;
+            std::cout << "temp: " << temp.to_string(AC_BIN,false,true) << std::endl;
+            ac_int<32,true> sext_imm = imm;
+            if(imm[11] == 1) { sext_imm.set_slc(12,temp); }
+            // create Operation object
+            if(func3 == 0) {
+                std::cout<< "BEQ operation"
+                          << " sext_imm: " << sext_imm.to_string(AC_BIN,false,true) << std::endl;
+                operation = &ALU::equal;
+                Operation op(operation, sext_imm, R[rs1], PC, 1);
+                return op;
+            } else if(func3 == 1) {
+                std::cout << "BNE operation" << std::endl;
+                operation = &ALU::not_equal;
+                Operation op(operation, sext_imm, R[rs1], PC, 1);
+                return op;
+            } else if(func3 == 4) {
+                std::cout << "BLT operation" << std::endl;
+                operation = &ALU::less_than;
+                Operation op(operation, sext_imm, R[rs1], PC, 1);
+                return op;
+            } else if(func3 == 5) {             
+                std::cout << "BGE operation" << std::endl;
+                operation = &ALU::greater_than;
+                Operation op(operation, sext_imm, R[rs1], PC, 1);
+                return op;
+            } else if(func3 == 6) {             
+                std::cout << "BTLU operation" << std::endl;
+                operation = &ALU::less_than_u;
+                Operation op(operation, sext_imm, R[rs1], PC, 1);
+                return op;
+            } else if(func3 == 7) {             
+                std::cout << "BGEU operation" << std::endl;
+                operation = &ALU::greater_than_u;
+                Operation op(operation, sext_imm, R[rs1], PC, 1);
+                return op;           
+            } else {
+                std::cout << "Wrong operation (branch)" << std::endl;
+                operation = &ALU::add;
+                Operation op(operation, 0, 0, 0, 1);
+                return op;
+            }
             break;
-
-        default:
-            std::cout << "Wrong\n" ;
-            break;
+            }
+        default: 
+            std::cout << "Wrong operation (opcode)" << std::endl;
+            operation = &ALU::add;
+            Operation op(operation, 0, 0, 0, 1);
         }
-   
+    //return op;
 }
 
-ac_int<32,false> Processor::update_pc(Operation operation) {
-    if(operation.control == 0) {
+ac_int<32,false> Processor::update_pc(Operation op) {
+    if(op.control == 0) {
+        // call branch function
+        ac_int<32,false> result = (alu.*(op.operation))(op.operand_1, op.operand_2);
+        if(result[0]) {
+            return PC + op.destination;
+        } else {
+            return PC + 1;
+        }
+    } else if(op.control == 4) {
         // call jump function
+        ac_int<5,false> reg_addr = op.destination.slc<5>(0);
+        R[reg_addr] = PC+1;
+        return (alu.*(op.operation))(op.operand_1, op.operand_2);
     } else {
         return PC + 1;
     }
