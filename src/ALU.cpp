@@ -54,3 +54,9 @@ ac_int<32, true> ALU::less_than_u(ac_int<32,true> op1, ac_int<32,true> op2) {
     ac_int<32,false> uns2 = op2;
     return uns1 < uns2;
 }
+
+// Complex Operations
+ac_int<32,true> ALU::shift12_add(ac_int<32,true> op1, ac_int<32,true> op2) {
+    ac_int<32,true> shifted = shift_left(op1, 12);
+    return add(shifted, op2);
+}

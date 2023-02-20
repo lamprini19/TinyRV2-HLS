@@ -21,5 +21,8 @@ public:
     // comparison operations
     ac_int<32,true> less_than(ac_int<32,true>, ac_int<32,true>);
     ac_int<32,true> less_than_u(ac_int<32,true>, ac_int<32,true>);
+
+    // complex operations
+    ac_int<32,true> shift12_add(ac_int<32,true>, ac_int<32,true>);
 };
 #endif
