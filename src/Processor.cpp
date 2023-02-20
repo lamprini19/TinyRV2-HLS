@@ -196,14 +196,27 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             }
             break;
             }
-        case 1110110:
+        case 55: 
+            {
             // lui
+            ac_int<32,true> rd = instruction.slc<5>(7);
+            ac_int<32,true> imm = instruction.slc<20>(12);
+            // ac_int<32,true> t12 = 12;
+            operation = &ALU::shift_left;
+            Operation op(operation, rd, imm, 12, 1);
+            return op;
             break;
-
-        case 1110100:
+            }
+        case 23:
+            {
             // auipc
+            ac_int<32,true> rd = instruction.slc<5>(7);
+            ac_int<32,true> imm = instruction.slc<20>(12);
+            operation = &ALU::shift12_add;
+            Operation op(operation, rd, imm, this->PC, 1);
+            return op;
             break;
-
+            }
         case 1100000:
             // lw
             break;
