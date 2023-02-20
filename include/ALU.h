@@ -15,9 +15,11 @@ public:
 
     // shift operations
     ac_int<32,true> shift_left(ac_int<32,true>, ac_int<32,true>);
-    ac_int<32,true> shift_right(ac_int<32,true>, ac_int<32,true>, bool);
+    ac_int<32,true> shift_right_a(ac_int<32,true>, ac_int<32,true>);
+    ac_int<32,true> shift_right_l(ac_int<32,true>, ac_int<32,true>);
 
     // comparison operations
-    ac_int<32,true> less_than(ac_int<32,true>, ac_int<32,true>, bool);
+    ac_int<32,true> less_than(ac_int<32,true>, ac_int<32,true>);
+    ac_int<32,true> less_than_u(ac_int<32,true>, ac_int<32,true>);
 };
 #endif
