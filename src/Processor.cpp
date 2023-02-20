@@ -6,7 +6,7 @@
 #include <iostream>
 
 ac_int<32,false> Processor::read_instruction(ac_int<32,false> instr_mem[256]) {
-    return instr_mem[this->PC];
+    return instr_mem[PC];
 }
 
 Operation Processor::decode_read(ac_int<32,false> instruction) {
@@ -213,7 +213,7 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             ac_int<32,true> rd = instruction.slc<5>(7);
             ac_int<32,true> imm = instruction.slc<20>(12);
             operation = &ALU::shift12_add;
-            Operation op(operation, rd, imm, this->PC, 1);
+            Operation op(operation, rd, imm, PC, 1);
             return op;
             break;
             }
@@ -248,7 +248,7 @@ void Processor::update_pc(Operation operation) {
     if(operation.control == 0) {
         // call jump function
     } else {
-        this->PC = this->PC + 1;
+        PC = PC + 1;
     }
 }
 
