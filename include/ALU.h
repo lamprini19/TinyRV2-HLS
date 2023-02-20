@@ -19,8 +19,12 @@ public:
     ac_int<32,true> shift_right_l(ac_int<32,true>, ac_int<32,true>);
 
     // comparison operations
+    ac_int<32,true> equal(ac_int<32,true>, ac_int<32,true>);
+    ac_int<32,true> not_equal(ac_int<32,true>, ac_int<32,true>);
     ac_int<32,true> less_than(ac_int<32,true>, ac_int<32,true>);
     ac_int<32,true> less_than_u(ac_int<32,true>, ac_int<32,true>);
+    ac_int<32,true> greater_than(ac_int<32,true>, ac_int<32,true>);
+    ac_int<32,true> greater_than_u(ac_int<32,true>, ac_int<32,true>);
 
     // complex operations
     ac_int<32,true> shift12_add(ac_int<32,true>, ac_int<32,true>);

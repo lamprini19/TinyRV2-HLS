@@ -45,6 +45,14 @@ ac_int<32, true> ALU::shift_right_l(ac_int<32,true> op1, ac_int<32,true> op2) {
 }
 
 // Comparison Operations
+ac_int<32,true> equal(ac_int<32,true> op1, ac_int<32,true> op2) {
+    return op1 == op2;
+}
+
+ac_int<32,true> not_equal(ac_int<32,true> op1, ac_int<32,true> op2) {
+    return equal(op1, op2).slc<1>(0).bit_complement();
+}
+
 ac_int<32, true> ALU::less_than(ac_int<32,true> op1, ac_int<32,true> op2) {
     return op1 < op2;
 }
@@ -53,6 +61,16 @@ ac_int<32, true> ALU::less_than_u(ac_int<32,true> op1, ac_int<32,true> op2) {
     ac_int<32,false> uns1 = op1;
     ac_int<32,false> uns2 = op2;
     return uns1 < uns2;
+}
+
+ac_int<32, true> ALU::greater_than(ac_int<32,true> op1, ac_int<32,true> op2) {
+    return op1 > op2;
+}
+
+ac_int<32, true> ALU::greater_than_u(ac_int<32,true> op1, ac_int<32,true> op2) {
+    ac_int<32,false> uns1 = op1;
+    ac_int<32,false> uns2 = op2;
+    return uns1 > uns2;
 }
 
 // Complex Operations
