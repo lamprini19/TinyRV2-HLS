@@ -280,61 +280,78 @@ void Processor::run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[25
     R[4] = 2;
     R[7] = 6;
 
-    PC = next_PC;
-    ac_int<32,false> instruction = read_instruction(instr_mem);
-    Operation operation = decode_read(instruction);
-    next_PC = update_pc(operation);
-    ac_int<32,true> result = execute(operation);
-    write_back(operation.destination, result);
+    while(true) {
+        PC = next_PC;
+        std::cout << "Current PC: " << PC << std::endl;
+        ac_int<32,false> instruction = read_instruction(instr_mem);
+        if(instruction == 0) { break; }
+        Operation operation = decode_read(instruction);
+        next_PC = update_pc(operation);
+        if(operation.control == 0) { continue; }
+        ac_int<32,true> result = execute(operation);
+        if(operation.control == 2) {
+            write_back(operation.destination,
+                       memory_read(data_mem, result));
+        } else if(operation.control == 3) {
+            memory_write(data_mem, result, operation.destination);
+        } else if(operation.control == 1) {
+            write_back(operation.destination, result);
+        }
 
-    std::cout << std::endl;
+        std::cout << std::endl;
 
-    // test read_instruction
-    std::cout << "Instruction read: " 
-              << instruction.to_string(AC_BIN,false,true)
-              << std::endl;
+        // test read_instruction
+        std::cout << "Instruction read: "
+                  << instruction.to_string(AC_BIN,false,true)
+                  << std::endl;
 
-    std::cout << std::endl;
+        std::cout << std::endl;
 
-    // test decode_read
-    std::cout << "Instruction type: " << operation.control << std::endl
-              << "Destination Register: " << operation.destination
-              << " or in binary: " << operation.destination.to_string(AC_BIN,false,false) << std::endl
-              << "Operands: " << operation.operand_1
-              << " and " << operation.operand_2
-              << std::endl;
+        // test decode_read
+        std::cout << "Instruction type: " << operation.control << std::endl
+                  << "Destination Register: " << operation.destination
+                  << " or in binary: "
+                  << operation.destination.to_string(AC_BIN,false,false)
+                  << std::endl
+                  << "Operands: " << operation.operand_1
+                  << " and " << operation.operand_2
+                  << std::endl;
 
-    std::cout << std::endl;
+        std::cout << std::endl;
 
-    // test update_pc
-    std::cout << "New PC is: " << next_PC 
-              << std::endl;
+        // test update_pc
+        std::cout << "Next PC is: " << next_PC
+                  << std::endl;
 
-    std::cout << std::endl;
+        std::cout << std::endl;
 
-    // test execute
-    std::cout << "Result of adding " << operation.operand_1
-              << " and " << operation.operand_2
-              << " is " << result
-              << " or in binary: " << result.to_string(AC_BIN,false,true)
-              << std::endl;
+        // test execute
+        std::cout << "Result of operating with " << operation.operand_1
+                  << " and " << operation.operand_2
+                  << " is " << result
+                  << " or in binary: "
+                  << result.to_string(AC_BIN,false,true)
+                  << std::endl;
 
-    // test write_back
-    std::cout << "Value of register "
-              << operation.destination.to_string(AC_BIN,false,false)
-              << ": " << R[5]
-              << std::endl;
+        // test write_back
+        std::cout << "Value of register "
+                  << operation.destination.to_string(AC_BIN,false,false)
+                  << ": " << R[5]
+                  << std::endl;
 
-    std::cout << std::endl;
+        // test memory access
+        memory_write(data_mem, result, operation.operand_2);
+        std::cout << "Wrote " << operation.operand_2
+                  << " on memory address " << result
+                  << " (" << result.to_string(AC_HEX,false,false)
+                  << ")" << std::endl;
 
-    // test memory access
-    memory_write(data_mem, result, operation.operand_2);
-    std::cout << "Wrote " << operation.operand_2
-              << " on memory address " << result
-              << " (" << result.to_string(AC_HEX,false,false)
-              << ")" << std::endl;
+        std::cout << "Read " << memory_read(data_mem, result)
+                  << " from memory address " << result
+                  << std::endl;
 
-    std::cout << "Read " << memory_read(data_mem, result)
-              << " from memory address " << result
-              << std::endl;
+        std::cout << std::endl;
+        std::cout << std::string(72,'-');
+        std::cout << std::endl;
+    }
 }
