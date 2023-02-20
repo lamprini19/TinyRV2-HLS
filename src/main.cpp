@@ -9,7 +9,8 @@ int main() {
     ac::init_array<AC_VAL_0>(data_mem, 256);
     
     // Write program
-    instr_mem[50] = 0b11000000010000111000001010010011; // add r5, r7, 0b110000000100
+    instr_mem[50] = 0b00000000010000111000001010110011; // add r5, r4, r7
+    instr_mem[51] = 0b11000000010000111000001010010011; // add r5, r7, 0b110000000100
 
     Processor processor = Processor();
     processor.run(instr_mem, data_mem);
