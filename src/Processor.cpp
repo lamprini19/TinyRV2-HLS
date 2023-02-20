@@ -244,11 +244,11 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
    
 }
 
-void Processor::update_pc(Operation operation) {
+ac_int<32,false> Processor::update_pc(Operation operation) {
     if(operation.control == 0) {
         // call jump function
     } else {
-        PC = PC + 1;
+        return PC + 1;
     }
 }
 
@@ -273,19 +273,20 @@ void Processor::write_back(ac_int<32,false> destination_reg, ac_int<32,true> val
 }
 
 void Processor::run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[256]) {
-    PC = 50;
-    std::cout << "Initial PC: " << PC << std::endl;
+    ac_int<32,false> next_PC = 50;
+    std::cout << "Initial PC: " << next_PC << std::endl;
     std::cout << std::endl;
 
     R[4] = 2;
     R[7] = 6;
 
+    PC = next_PC;
     ac_int<32,false> instruction = read_instruction(instr_mem);
     Operation operation = decode_read(instruction);
-    update_pc(operation);
+    next_PC = update_pc(operation);
     ac_int<32,true> result = execute(operation);
     write_back(operation.destination, result);
-    
+
     std::cout << std::endl;
 
     // test read_instruction
@@ -306,7 +307,7 @@ void Processor::run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[25
     std::cout << std::endl;
 
     // test update_pc
-    std::cout << "New PC is: " << PC 
+    std::cout << "New PC is: " << next_PC 
               << std::endl;
 
     std::cout << std::endl;
