@@ -11,9 +11,6 @@ ac_int<32,false> Processor::read_instruction(ac_int<32,false> instr_mem[256]) {
 
 Operation Processor::decode_read(ac_int<32,false> instruction) {
     ac_int<7,false> opcode = instruction.slc<7>(0);
-    std::cout << "Instruction opcode is: " << opcode
-              << " or in binary " << opcode.to_string(AC_BIN,false,true)
-              << std::endl;
     ac_int<32,true> (ALU::*operation)(ac_int<32,true>, ac_int<32,true>);
     
     switch(opcode) {
@@ -119,7 +116,7 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
                 return op;
             }
             break;
-           }
+            }
         case 19:
             {
             // arithmetics with immediate
@@ -136,8 +133,7 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             if(imm[11] == 1) { sext_imm.set_slc(12,temp); }
 
             if(func3 == 0) {
-                std::cout<< "ADDI operation"
-                          << " sext_imm: " << sext_imm.to_string(AC_BIN,false,true) << std::endl;
+                std::cout<< "ADDI operation" << std::endl;
                 operation = &ALU::add;
                 Operation op(operation, rd, R[rs1], sext_imm, 1);
                 return op;
@@ -199,6 +195,7 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
         case 55: 
             {
             // lui
+            std::cout << "LUI operation" << std::endl;
             ac_int<32,true> rd = instruction.slc<5>(7);
             ac_int<32,true> imm = instruction.slc<20>(12);
             operation = &ALU::shift_left;
@@ -209,6 +206,7 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
         case 23:
             {
             // auipc
+            std::cout << "AUIPC operation" << std::endl;
             ac_int<32,true> rd = instruction.slc<5>(7);
             ac_int<32,true> imm = instruction.slc<20>(12);
             operation = &ALU::shift12_add;
@@ -219,6 +217,7 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
         case 3:
             {
             // lw
+            std::cout << "LW operation" << std::endl;
             ac_int<32,true> rd = instruction.slc<5>(7);
             ac_int<32,true> rs1 = instruction.slc<5>(15);
             ac_int<32,true> imm = instruction.slc<12>(20);
@@ -235,10 +234,11 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
         case 35:
             {
             // sw
+            std::cout << "SW operation" << std::endl;
             ac_int<32,true> rs1 = instruction.slc<5>(15);
             ac_int<32,true> rs2 = instruction.slc<5>(20);
             // reconstruct S-type immediate
-            ac_int<32,true> imm;
+            ac_int<32,true> imm = 0;
             ac_int<5,true> imm_part_1 = instruction.slc<5>(7);
             ac_int<7,true> imm_part_2 = instruction.slc<7>(25);
             imm.set_slc(0,imm_part_1);
@@ -256,12 +256,12 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
         case 111:
             {
             // jal
-            ac_int<32,true> rd = instruction<5>(7);
-            ac_int<32,true> imm = instruction<20>(12);
+            ac_int<32,true> rd = instruction.slc<5>(7);
+            ac_int<20,true> imm = instruction.slc<20>(12);
             // sign extend
             ac_int<12,false> temp = -1;
             ac_int<32,true> sext_imm = imm;
-            if(imm[19] == 1) { sext_imm.set_slc(12,temp); }
+            if(imm[19] == 1) { sext_imm.set_slc(19,temp); }
             // create Operation object
             operation = &ALU::add;
             Operation op(operation, rd, PC, sext_imm, 4);
@@ -271,9 +271,9 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
         case 103:
             {
             // jalr (+jr)
-            ac_int<32,true> rd = instruction<5>(7);
-            ac_int<32,true> imm = instruction<12>(20);
-            ac_int<32,true> rs1 = instruction<5>(15);
+            ac_int<32,true> rd = instruction.slc<5>(7);
+            ac_int<32,true> imm = instruction.slc<12>(20);
+            ac_int<32,true> rs1 = instruction.slc<5>(15);
             // sign extend
             ac_int<20,false> temp = -1;
             ac_int<32,true> sext_imm = imm;
@@ -292,16 +292,18 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             ac_int<32,false> rs2 = instruction.slc<5>(20);
             // reconstruct B-type immediate
             ac_int<32,true> imm = 0;
-            ac_int<4,true> imm_part_1 = instruction.slc<4>(1);
-            ac_int<5,true> imm_part_2 = instruction.slc<5>(5);
-            bool imm_part_3 = instruction[7];
+            ac_int<4,true> imm_part_1 = instruction.slc<4>(8);
+            ac_int<6,true> imm_part_2 = instruction.slc<6>(25);
+            ac_int<1,false> imm_part_3 = instruction[7];
+            std::cout << "Imm1: " << imm_part_1.to_string(AC_BIN,false,true)
+                      << "  Imm2: " << imm_part_2.to_string(AC_BIN,false,true)
+                      << "  Imm3: " << imm_part_3.to_string(AC_BIN,false,true) << std::endl;
             imm.set_slc(1,imm_part_1);
+            std::cout << "Imm after 1 addition: " << imm.to_string(AC_BIN,false,true) << std::endl;
             imm.set_slc(5,imm_part_2);
             imm[11] = imm_part_3;
             // sign extend of immediate
             ac_int<20,false> temp = -1;
-            std::cout << "imm: " << imm.to_string(AC_BIN,false,true) << std::endl;
-            std::cout << "temp: " << temp.to_string(AC_BIN,false,true) << std::endl;
             ac_int<32,true> sext_imm = imm;
             if(imm[11] == 1) { sext_imm.set_slc(12,temp); }
             // create Operation object
@@ -309,32 +311,33 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
                 std::cout<< "BEQ operation"
                           << " sext_imm: " << sext_imm.to_string(AC_BIN,false,true) << std::endl;
                 operation = &ALU::equal;
-                Operation op(operation, sext_imm, R[rs1], PC, 1);
+                Operation op(operation, sext_imm, R[rs1], R[rs2], 0);
                 return op;
             } else if(func3 == 1) {
                 std::cout << "BNE operation" << std::endl;
                 operation = &ALU::not_equal;
-                Operation op(operation, sext_imm, R[rs1], PC, 1);
+                Operation op(operation, sext_imm, R[rs1], R[rs2], 0);
                 return op;
             } else if(func3 == 4) {
                 std::cout << "BLT operation" << std::endl;
                 operation = &ALU::less_than;
-                Operation op(operation, sext_imm, R[rs1], PC, 1);
+                Operation op(operation, sext_imm, R[rs1], R[rs2], 0);
                 return op;
             } else if(func3 == 5) {             
-                std::cout << "BGE operation" << std::endl;
+                std::cout << "BGE operation (if " << R[rs1] << ">" << R[rs2]
+                          << " then PC <- PC + " << sext_imm << std::endl;
                 operation = &ALU::greater_than;
-                Operation op(operation, sext_imm, R[rs1], PC, 1);
+                Operation op(operation, sext_imm, R[rs1], R[rs2], 0);
                 return op;
             } else if(func3 == 6) {             
                 std::cout << "BTLU operation" << std::endl;
                 operation = &ALU::less_than_u;
-                Operation op(operation, sext_imm, R[rs1], PC, 1);
+                Operation op(operation, sext_imm, R[rs1], R[rs2], 0);
                 return op;
             } else if(func3 == 7) {             
                 std::cout << "BGEU operation" << std::endl;
                 operation = &ALU::greater_than_u;
-                Operation op(operation, sext_imm, R[rs1], PC, 1);
+                Operation op(operation, sext_imm, R[rs1], R[rs2], 0);
                 return op;           
             } else {
                 std::cout << "Wrong operation (branch)" << std::endl;
@@ -365,7 +368,12 @@ ac_int<32,false> Processor::update_pc(Operation op) {
         // call jump function
         ac_int<5,false> reg_addr = op.destination.slc<5>(0);
         R[reg_addr] = PC+1;
-        return (alu.*(op.operation))(op.operand_1, op.operand_2);
+        std::cout << PC+1 << " will be stored to register " << reg_addr << std::endl;
+        ac_int<32,true> result =  (alu.*(op.operation))(op.operand_1, op.operand_2);
+        std::cout << "addition result of " << op.operand_1
+                  << "and " << op.operand_2 << " is " 
+                  << result.to_string(AC_BIN,false,true) << " (" << result << ")\n";
+        return result;
     } else {
         return PC + 1;
     }
@@ -396,28 +404,25 @@ void Processor::run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[25
     std::cout << "Initial PC: " << next_PC << std::endl;
     std::cout << std::endl;
 
-    R[4] = 2;
-    R[7] = 6;
-
     while(true) {
+        R[0] = 0;
+        std::cout << std::string(72,'-');
+        std::cout << std::endl;
         PC = next_PC;
         std::cout << "Current PC: " << PC << std::endl;
         ac_int<32,false> instruction = read_instruction(instr_mem);
-        if(instruction == 0) { break; }
+        if(instruction == 0) { std::cout << "No instruction found, exit.\n"; break; }
         Operation operation = decode_read(instruction);
         next_PC = update_pc(operation);
-        if(operation.control == 0) { continue; }
+        if(operation.control == 0 || operation.control == 4) { continue; }
         ac_int<32,true> result = execute(operation);
         if(operation.control == 2) {
-            write_back(operation.destination,
-                       memory_read(data_mem, result));
+            write_back(operation.destination, memory_read(data_mem, result));
         } else if(operation.control == 3) {
             memory_write(data_mem, result, operation.destination);
         } else if(operation.control == 1) {
             write_back(operation.destination, result);
         }
-
-        std::cout << std::endl;
 
         // test read_instruction
         std::cout << "Instruction read: "
@@ -452,25 +457,27 @@ void Processor::run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[25
                   << result.to_string(AC_BIN,false,true)
                   << std::endl;
 
+        if(operation.control == 3) {
+            std::cout << "Wrote " << operation.operand_2
+                    << " on memory address " << result
+                    << " (" << result.to_string(AC_HEX,false,false)
+                    << ")" << std::endl;
+        }
+
+        if(operation.control == 2) {
+            std::cout << "Read value " << memory_read(data_mem,result)
+                      << "from memory address " << result
+                      << " (" << result.to_string(AC_HEX,false,false) << ")" 
+                      << " in register " << operation.destination
+                      << std::endl;
+        }
+
         // test write_back
         std::cout << "Value of register "
-                  << operation.destination.to_string(AC_BIN,false,false)
-                  << ": " << R[5]
+                  << operation.destination
+                  << ": " << R[operation.destination]
                   << std::endl;
 
-        // test memory access
-        memory_write(data_mem, result, operation.operand_2);
-        std::cout << "Wrote " << operation.operand_2
-                  << " on memory address " << result
-                  << " (" << result.to_string(AC_HEX,false,false)
-                  << ")" << std::endl;
-
-        std::cout << "Read " << memory_read(data_mem, result)
-                  << " from memory address " << result
-                  << std::endl;
-
-        std::cout << std::endl;
-        std::cout << std::string(72,'-');
         std::cout << std::endl;
     }
 }
