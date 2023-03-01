@@ -53,7 +53,8 @@ int main() {
     instr_mem[88] = 0b0;
 
     Processor processor = Processor();
-    processor.run(instr_mem, data_mem);
+    
+    while(processor.run(instr_mem, data_mem));
 
     return 0;
 

@@ -14,27 +14,10 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
     ac_int<32,true> (ALU::*operation)(ac_int<32,true>, ac_int<32,true>);
     
     switch(opcode) {
-        case 115:
-            {
-            // controls
-            ac_int<3,false> func3 = instruction.slc<3>(12);
-	        ac_int<32,false> rd = instruction.slc<5>(7);
-
-            if(func3 == 2) {
-                std::cout << "CSRR" << std::endl;
-            } else if(func3 == 1) {
-                std::cout << "CSRW" << std::endl;
-            } else {
-                operation = &ALU::add;
-                Operation op(operation, 0, 0, 0, 1);
-                return op;
-            }
-            break;
-            }
         case 51:
             {
-	        // arithmetics
-	        ac_int<3,false> func3 = instruction.slc<3>(12);
+            // arithmetic
+            ac_int<3,false> func3 = instruction.slc<3>(12);
     	    ac_int<7,false> func7 = instruction.slc<7>(25);
     	    ac_int<32,false> rd = instruction.slc<5>(7);
             ac_int<32,false> rs1 = instruction.slc<5>(15);
@@ -399,85 +382,82 @@ void Processor::write_back(ac_int<32,false> destination_reg, ac_int<32,true> val
     R[reg_addr] = value;
 }
 
-void Processor::run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[256]) {
-    ac_int<32,false> next_PC = 50;
-    std::cout << "Initial PC: " << next_PC << std::endl;
+bool Processor::run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[256]) {
+
+    R[0] = 0;
+    std::cout << std::string(72,'-');
+    std::cout << std::endl;
+    PC = next_PC;
+    std::cout << "Current PC: " << PC << std::endl;
+    ac_int<32,false> instruction = read_instruction(instr_mem);
+    if(instruction == 0) { std::cout << "No instruction found, exit.\n"; return 0; }
+    Operation operation = decode_read(instruction);
+    next_PC = update_pc(operation);
+    if(operation.control == 0 || operation.control == 4) { return 1; }
+    ac_int<32,true> result = execute(operation);
+    if(operation.control == 2) {
+        write_back(operation.destination, memory_read(data_mem, result));
+    } else if(operation.control == 3) {
+        memory_write(data_mem, result, operation.destination);
+    } else if(operation.control == 1) {
+        write_back(operation.destination, result);
+    }
+
+    // test read_instruction
+    std::cout << "Instruction read: "
+              << instruction.to_string(AC_BIN,false,true)
+              << std::endl;
+
     std::cout << std::endl;
 
-    while(true) {
-        R[0] = 0;
-        std::cout << std::string(72,'-');
-        std::cout << std::endl;
-        PC = next_PC;
-        std::cout << "Current PC: " << PC << std::endl;
-        ac_int<32,false> instruction = read_instruction(instr_mem);
-        if(instruction == 0) { std::cout << "No instruction found, exit.\n"; break; }
-        Operation operation = decode_read(instruction);
-        next_PC = update_pc(operation);
-        if(operation.control == 0 || operation.control == 4) { continue; }
-        ac_int<32,true> result = execute(operation);
-        if(operation.control == 2) {
-            write_back(operation.destination, memory_read(data_mem, result));
-        } else if(operation.control == 3) {
-            memory_write(data_mem, result, operation.destination);
-        } else if(operation.control == 1) {
-            write_back(operation.destination, result);
-        }
+    // test decode_read
+    std::cout << "Instruction type: " << operation.control << std::endl
+              << "Destination Register: " << operation.destination
+              << " or in binary: "
+              << operation.destination.to_string(AC_BIN,false,false)
+              << std::endl
+              << "Operands: " << operation.operand_1
+              << " and " << operation.operand_2
+              << std::endl;
 
-        // test read_instruction
-        std::cout << "Instruction read: "
-                  << instruction.to_string(AC_BIN,false,true)
-                  << std::endl;
+    std::cout << std::endl;
 
-        std::cout << std::endl;
+    // test update_pc
+    std::cout << "Next PC is: " << next_PC
+              << std::endl;
 
-        // test decode_read
-        std::cout << "Instruction type: " << operation.control << std::endl
-                  << "Destination Register: " << operation.destination
-                  << " or in binary: "
-                  << operation.destination.to_string(AC_BIN,false,false)
-                  << std::endl
-                  << "Operands: " << operation.operand_1
-                  << " and " << operation.operand_2
-                  << std::endl;
+    std::cout << std::endl;
 
-        std::cout << std::endl;
+    // test execute
+    std::cout << "Result of operating with " << operation.operand_1
+              << " and " << operation.operand_2
+              << " is " << result
+              << " or in binary: "
+              << result.to_string(AC_BIN,false,true)
+              << std::endl;
 
-        // test update_pc
-        std::cout << "Next PC is: " << next_PC
-                  << std::endl;
-
-        std::cout << std::endl;
-
-        // test execute
-        std::cout << "Result of operating with " << operation.operand_1
-                  << " and " << operation.operand_2
-                  << " is " << result
-                  << " or in binary: "
-                  << result.to_string(AC_BIN,false,true)
-                  << std::endl;
-
-        if(operation.control == 3) {
-            std::cout << "Wrote " << operation.operand_2
-                    << " on memory address " << result
-                    << " (" << result.to_string(AC_HEX,false,false)
-                    << ")" << std::endl;
-        }
-
-        if(operation.control == 2) {
-            std::cout << "Read value " << memory_read(data_mem,result)
-                      << "from memory address " << result
-                      << " (" << result.to_string(AC_HEX,false,false) << ")" 
-                      << " in register " << operation.destination
-                      << std::endl;
-        }
-
-        // test write_back
-        std::cout << "Value of register "
-                  << operation.destination
-                  << ": " << R[operation.destination]
-                  << std::endl;
-
-        std::cout << std::endl;
+    if(operation.control == 3) {
+        std::cout << "Wrote " << operation.operand_2
+                  << " on memory address " << result
+                  << " (" << result.to_string(AC_HEX,false,false)
+                  << ")" << std::endl;
     }
+
+    if(operation.control == 2) {
+        std::cout << "Read value " << memory_read(data_mem,result)
+                  << "from memory address " << result
+                  << " (" << result.to_string(AC_HEX,false,false) << ")" 
+                  << " in register " << operation.destination
+                  << std::endl;
+    }
+
+    // test write_back
+    std::cout << "Value of register "
+              << operation.destination
+              << ": " << R[operation.destination]
+              << std::endl;
+
+    std::cout << std::endl;
+
+    return 1;
 }
