@@ -11,7 +11,7 @@ ac_int<32,false> Processor::read_instruction(ac_int<32,false> instr_mem[256]) {
 
 Operation Processor::decode_read(ac_int<32,false> instruction) {
     ac_int<7,false> opcode = instruction.slc<7>(0);
-    ac_int<32,true> (ALU::*operation)(ac_int<32,true>, ac_int<32,true>);
+    ac_int<4,false> ALU_opcode;
     
     switch(opcode) {
         case 51:
@@ -26,76 +26,76 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             if(func3 == 0) {
                 if(func7 == 0) {
                     std::cout << "ADD instruction" << std::endl;
-                    operation = &ALU::add;
-                    Operation op(operation, rd, R[rs1], R[rs2], 1);
+                    ALU_opcode = 0;
+                    Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                     return op;
     	        } else if(func7[5] == 1) {
                     std::cout << "SUB instruction" << std::endl;
-                    operation = &ALU::sub;
-                    Operation op(operation, rd, R[rs1], R[rs2], 1);
+                    ALU_opcode = 1;
+                    Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                     return op;
                 } else if(func7[0] == 1) {
                     std::cout << "MUL operation" << std::endl;
-                    operation = &ALU::mul;
-                    Operation op(operation, rd, R[rs1], R[rs2], 1);
+                    ALU_opcode = 2;
+                    Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                     return op;
                 } else {
                     std::cout << "Wrong operation (add)" << std::endl;
-                    operation = &ALU::add;
-                    Operation op(operation, 0, 0, 0, 1);
+                    ALU_opcode = 0;
+                    Operation op(ALU_opcode, 0, 0, 0, 1);
                     return op;
                 }
             } else if(func3 == 7) {
                 std::cout << "AND operation" << std::endl;
-                operation = &ALU::bwand;
-                Operation op(operation, rd, R[rs1], R[rs2], 1);
+                ALU_opcode = 3;
+                Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                 return op;
             } else if(func3 == 6) {
                 std::cout << "OR operation" << std::endl;
-                operation = &ALU::bwor;
-                Operation op(operation, rd, R[rs1], R[rs2], 1);
+                ALU_opcode = 4;
+                Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                 return op;
             } else if(func3 == 4) {
                 std::cout << "XOR operation" << std::endl;
-                operation = &ALU::bwxor;
-                Operation op(operation, rd, R[rs1], R[rs2], 1);
+                ALU_opcode = 5;
+                Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                 return op;
-            } else if(func3 == 2) {             
+            } else if(func3 == 2) {
                 std::cout << "SLT operation" << std::endl;
-                operation = &ALU::less_than;
-                Operation op(operation, rd, R[rs1], R[rs2], 1);
+                ALU_opcode = 11;
+                Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                 return op;
-            } else if(func3 == 3) {             
+            } else if(func3 == 3) {
                 std::cout << "SLTU operation" << std::endl;
-                operation = &ALU::less_than_u;
-                Operation op(operation, rd, R[rs1], R[rs2], 1);
+                ALU_opcode = 12;
+                Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                 return op;
             } else if(func3 == 5) {
-                if(func7[5] == 1) {            
+                if(func7[5] == 1) {
                     std::cout << "SRA operation" << std::endl;
-                    operation = &ALU::shift_right_a;
-                    Operation op(operation, rd, R[rs1], R[rs2], 1);
+                    ALU_opcode = 7;
+                    Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                     return op;
                 } else if(func7 == 0) {
                     std::cout << "SRL operation" << std::endl;
-                    operation = &ALU::shift_right_l;
-                    Operation op(operation, rd, R[rs1], R[rs2], 1);
+                    ALU_opcode = 8;
+                    Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                     return op;
-                } else {             
+                } else {
                     std::cout << "Wrong operation (right shift)" << std::endl;
-                    operation = &ALU::add;
-                    Operation op(operation, 0, 0, 0, 1);
+                    ALU_opcode = 0;
+                    Operation op(ALU_opcode, 0, 0, 0, 1);
                     return op;
                 }
-            } else if(func3 == 1) {             
+            } else if(func3 == 1) {
                 std::cout << "SLL operation" << std::endl;
-                operation = &ALU::shift_left;
-                Operation op(operation, rd, R[rs1], R[rs2], 1);
+                ALU_opcode = 6;
+                Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                 return op;           
             } else {
                 std::cout << "Wrong operation (arithm)" << std::endl;
-                operation = &ALU::add;
-                Operation op(operation, 0, 0, 0, 1);
+                ALU_opcode = 0;
+                Operation op(ALU_opcode, 0, 0, 0, 1);
                 return op;
             }
             break;
@@ -117,72 +117,72 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
 
             if(func3 == 0) {
                 std::cout<< "ADDI operation" << std::endl;
-                operation = &ALU::add;
-                Operation op(operation, rd, R[rs1], sext_imm, 1);
+                ALU_opcode = 0;
+                Operation op(ALU_opcode, rd, R[rs1], sext_imm, 1);
                 return op;
             } else if(func3 == 7) {
                 std::cout << "ANDI operation" << std::endl;
-                operation = &ALU::bwand;
-                Operation op(operation, rd, R[rs1], sext_imm, 1);
+                ALU_opcode = 3;
+                Operation op(ALU_opcode, rd, R[rs1], sext_imm, 1);
                 return op;
             } else if(func3 == 6) {
                 std::cout << "ORI operation" << std::endl;
-                operation = &ALU::bwor;
-                Operation op(operation, rd, R[rs1], sext_imm, 1);
+                ALU_opcode = 4;
+                Operation op(ALU_opcode, rd, R[rs1], sext_imm, 1);
                 return op;
-            } else if(func3 == 4) {             
+            } else if(func3 == 4) {
                 std::cout << "XORI operation" << std::endl;
-                operation = &ALU::bwxor;
-                Operation op(operation, rd, R[rs1], sext_imm, 1);
+                ALU_opcode = 5;
+                Operation op(ALU_opcode, rd, R[rs1], sext_imm, 1);
                 return op;
-            } else if(func3 == 2) {             
+            } else if(func3 == 2) {
                 std::cout << "SLTI operation" << std::endl;
-                operation = &ALU::less_than;
-                Operation op(operation, rd, R[rs1], sext_imm, 1);
+                ALU_opcode = 11;
+                Operation op(ALU_opcode, rd, R[rs1], sext_imm, 1);
                 return op;
-            } else if(func3 == 3) {             
+            } else if(func3 == 3) {
                 std::cout << "SLTIU operation" << std::endl;
-                operation = &ALU::less_than_u;
-                Operation op(operation, rd, R[rs1], sext_imm, 1);
+                ALU_opcode = 12;
+                Operation op(ALU_opcode, rd, R[rs1], sext_imm, 1);
                 return op;           
             } else if(func3 == 5) {
-                if(imm[10] == 1) {             
+                if(imm[10] == 1) {
                     std::cout << "SRAI operation" << std::endl;
-                    operation = &ALU::shift_right_a;
-                    Operation op(operation, rd, R[rs1], imm.slc<5>(0), 1);
+                    ALU_opcode = 7;
+                    Operation op(ALU_opcode, rd, R[rs1], imm.slc<5>(0), 1);
                     return op;
                 } else if(imm.slc<7>(5) == 0) {
                     std::cout << "SRLI operation" << std::endl;
-                    operation = &ALU::shift_right_l;
-                    Operation op(operation, rd, R[rs1], imm.slc<5>(0), 1);
+                    ALU_opcode = 8;
+                    Operation op(ALU_opcode, rd, R[rs1], imm.slc<5>(0), 1);
                     return op;
                 } else {
                     std::cout << "Wrong operation (right shift imm)" << std::endl;
-                    operation = &ALU::add;
-                    Operation op(operation, 0, 0, 0, 1);
+                    ALU_opcode = 0;
+                    Operation op(ALU_opcode, 0, 0, 0, 1);
                     return op;
                 }           
-            } else if(func3 == 1) {             
+            } else if(func3 == 1) {
                 std::cout << "SLLI operation" << std::endl;
-                operation = &ALU::shift_left;
-                Operation op(operation, rd, R[rs1], imm, 1);
+                ALU_opcode = 6;
+                Operation op(ALU_opcode, rd, R[rs1], imm, 1);
                 return op;           
             } else {
                 std::cout << "Wrong operation (arithm imm)" << std::endl;
-                operation = &ALU::add;
-                Operation op(operation, 0, 0, 0, 1);
+                ALU_opcode = 0;
+                Operation op(ALU_opcode, 0, 0, 0, 1);
                 return op;
             }
             break;
             }
-        case 55: 
+        case 55:
             {
             // lui
             std::cout << "LUI operation" << std::endl;
             ac_int<32,true> rd = instruction.slc<5>(7);
             ac_int<32,true> imm = instruction.slc<20>(12);
-            operation = &ALU::shift_left;
-            Operation op(operation, rd, imm, 12, 1);
+            ALU_opcode = 6;
+            Operation op(ALU_opcode, rd, imm, 12, 1);
             return op;
             break;
             }
@@ -192,8 +192,8 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             std::cout << "AUIPC operation" << std::endl;
             ac_int<32,true> rd = instruction.slc<5>(7);
             ac_int<32,true> imm = instruction.slc<20>(12);
-            operation = &ALU::shift12_add;
-            Operation op(operation, rd, imm, PC, 1);
+            ALU_opcode = 15;
+            Operation op(ALU_opcode, rd, imm, PC, 1);
             return op;
             break;
             }
@@ -209,8 +209,8 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             ac_int<32,true> sext_imm = imm;
             if(imm[11] == 1) { sext_imm.set_slc(12,temp); }
 
-            operation = &ALU::add;
-            Operation op(operation, rd, imm, R[rs1], 2);
+            ALU_opcode = 0;
+            Operation op(ALU_opcode, rd, imm, R[rs1], 2);
             return op;
             break;
             }
@@ -231,8 +231,8 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             ac_int<32,true> sext_imm = imm;
             if(imm[11] == 1) { sext_imm.set_slc(12,temp); }
             // create Operation object
-            operation = &ALU::add;
-            Operation op(operation, rs2, R[rs1], sext_imm, 3);
+            ALU_opcode = 0;
+            Operation op(ALU_opcode, rs2, R[rs1], sext_imm, 3);
             return op;
             break;
             }
@@ -246,8 +246,8 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             ac_int<32,true> sext_imm = imm;
             if(imm[19] == 1) { sext_imm.set_slc(19,temp); }
             // create Operation object
-            operation = &ALU::add;
-            Operation op(operation, rd, PC, sext_imm, 4);
+            ALU_opcode = 0;
+            Operation op(ALU_opcode, rd, PC, sext_imm, 4);
             return op;
             break;
             }
@@ -262,8 +262,8 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             ac_int<32,true> sext_imm = imm;
             if(imm[11] == 1) { sext_imm.set_slc(20,temp); }
             // create Operation object
-            operation = &ALU::add;
-            Operation op(operation, rd, R[rs1], sext_imm, 4);
+            ALU_opcode = 0;
+            Operation op(ALU_opcode, rd, R[rs1], sext_imm, 4);
             return op;
             break;
             }
@@ -293,47 +293,47 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             if(func3 == 0) {
                 std::cout<< "BEQ operation"
                           << " sext_imm: " << sext_imm.to_string(AC_BIN,false,true) << std::endl;
-                operation = &ALU::equal;
-                Operation op(operation, sext_imm, R[rs1], R[rs2], 0);
+                ALU_opcode = 9;
+                Operation op(ALU_opcode, sext_imm, R[rs1], R[rs2], 0);
                 return op;
             } else if(func3 == 1) {
                 std::cout << "BNE operation" << std::endl;
-                operation = &ALU::not_equal;
-                Operation op(operation, sext_imm, R[rs1], R[rs2], 0);
+                ALU_opcode = 10;
+                Operation op(ALU_opcode, sext_imm, R[rs1], R[rs2], 0);
                 return op;
             } else if(func3 == 4) {
                 std::cout << "BLT operation" << std::endl;
-                operation = &ALU::less_than;
-                Operation op(operation, sext_imm, R[rs1], R[rs2], 0);
+                ALU_opcode = 11;
+                Operation op(ALU_opcode, sext_imm, R[rs1], R[rs2], 0);
                 return op;
-            } else if(func3 == 5) {             
+            } else if(func3 == 5) {
                 std::cout << "BGE operation (if " << R[rs1] << ">" << R[rs2]
                           << " then PC <- PC + " << sext_imm << std::endl;
-                operation = &ALU::greater_than;
-                Operation op(operation, sext_imm, R[rs1], R[rs2], 0);
+                ALU_opcode = 13;
+                Operation op(ALU_opcode, sext_imm, R[rs1], R[rs2], 0);
                 return op;
-            } else if(func3 == 6) {             
-                std::cout << "BTLU operation" << std::endl;
-                operation = &ALU::less_than_u;
-                Operation op(operation, sext_imm, R[rs1], R[rs2], 0);
+            } else if(func3 == 6) {
+                std::cout << "BLTU operation" << std::endl;
+                ALU_opcode = 12;
+                Operation op(ALU_opcode, sext_imm, R[rs1], R[rs2], 0);
                 return op;
-            } else if(func3 == 7) {             
+            } else if(func3 == 7) {
                 std::cout << "BGEU operation" << std::endl;
-                operation = &ALU::greater_than_u;
-                Operation op(operation, sext_imm, R[rs1], R[rs2], 0);
-                return op;           
+                ALU_opcode = 14;
+                Operation op(ALU_opcode, sext_imm, R[rs1], R[rs2], 0);
+                return op;  
             } else {
                 std::cout << "Wrong operation (branch)" << std::endl;
-                operation = &ALU::add;
-                Operation op(operation, 0, 0, 0, 1);
+                ALU_opcode = 0;
+                Operation op(ALU_opcode, 0, 0, 0, 1);
                 return op;
             }
             break;
             }
-        default: 
+        default:
             std::cout << "Wrong operation (opcode)" << std::endl;
-            operation = &ALU::add;
-            Operation op(operation, 0, 0, 0, 1);
+            ALU_opcode = 0;
+            Operation op(ALU_opcode, 0, 0, 0, 1);
         }
     //return op;
 }
@@ -341,7 +341,9 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
 ac_int<32,false> Processor::update_pc(Operation op) {
     if(op.control == 0) {
         // call branch function
-        ac_int<32,false> result = (alu.*(op.operation))(op.operand_1, op.operand_2);
+        ac_int<32,false> result = alu.operation(op.operand_1,
+                                                op.operand_2,
+                                                op.ALU_opcode);
         if(result[0]) {
             return PC + op.destination;
         } else {
@@ -351,8 +353,13 @@ ac_int<32,false> Processor::update_pc(Operation op) {
         // call jump function
         ac_int<5,false> reg_addr = op.destination.slc<5>(0);
         R[reg_addr] = PC+1;
-        std::cout << PC+1 << " will be stored to register " << reg_addr << std::endl;
-        ac_int<32,true> result =  (alu.*(op.operation))(op.operand_1, op.operand_2);
+        std::cout << PC+1 << " will be stored to register "
+                  << reg_addr << std::endl;
+
+        ac_int<32,false> result = alu.operation(op.operand_1,
+                                                op.operand_2,
+                                                op.ALU_opcode);
+
         std::cout << "addition result of " << op.operand_1
                   << "and " << op.operand_2 << " is " 
                   << result.to_string(AC_BIN,false,true) << " (" << result << ")\n";
@@ -363,7 +370,7 @@ ac_int<32,false> Processor::update_pc(Operation op) {
 }
 
 ac_int<32,true> Processor::execute(Operation op) {
-    return (alu.*(op.operation))(op.operand_1, op.operand_2);
+    return alu.operation(op.operand_1, op.operand_2, op.ALU_opcode);
 }
 
 void Processor::memory_write(ac_int<32,true> memory[256],
