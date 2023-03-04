@@ -369,12 +369,16 @@ ac_int<32,true> Processor::execute(Operation op) {
 void Processor::memory_write(ac_int<32,true> memory[256],
                              ac_int<32,false> address,
                              ac_int<32,true> value) {
-    memory[address] = value;
+    ac_int<32,false> div_addr = address.slc<30>(2);
+    std::cout << "Address before: " << address << "   address now: " << div_addr << std::endl;
+    memory[div_addr] = value;
 }
 
 ac_int<32,true> Processor::memory_read(ac_int<32,true> memory[256],
                                        ac_int<32,false> address) {
-    return memory[address];
+    ac_int<32,false> div_addr = address.slc<30>(2);
+    std::cout << "Address before: " << address << "   address now: " << div_addr << std::endl;
+    return memory[div_addr];
 }
 
 void Processor::write_back(ac_int<32,false> destination_reg, ac_int<32,true> value) {
