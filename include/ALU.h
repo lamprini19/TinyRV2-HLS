@@ -2,7 +2,6 @@
 #define ALU_H
 
 class ALU {
-public:
     // arithmetic operations
     ac_int<32,true> add(ac_int<32,true>, ac_int<32,true>);
     ac_int<32,true> sub(ac_int<32,true>, ac_int<32,true>);
@@ -28,5 +27,10 @@ public:
 
     // complex operations
     ac_int<32,true> shift12_add(ac_int<32,true>, ac_int<32,true>);
+
+public:
+    ac_int<32,true> operation(ac_int<32,true> operand_1,
+                              ac_int<32,true> operand_2,
+                              ac_int<4,false> opcode);
 };
 #endif

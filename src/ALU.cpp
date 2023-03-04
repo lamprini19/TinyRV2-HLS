@@ -78,3 +78,43 @@ ac_int<32,true> ALU::shift12_add(ac_int<32,true> op1, ac_int<32,true> op2) {
     ac_int<32,true> shifted = shift_left(op1, 12);
     return add(shifted, op2);
 }
+
+
+ac_int<32,true> ALU::operation(ac_int<32,true> operand_1,
+                               ac_int<32,true> operand_2,
+                               ac_int<4,false> opcode) {
+     switch(opcode) {
+        case  0:
+            return add(operand_1, operand_2);
+        case  1:
+            return sub(operand_1, operand_2);
+        case  2:
+            return mul(operand_1, operand_2);
+        case  3:
+            return bwand(operand_1, operand_2);
+        case  4:
+            return bwor(operand_1, operand_2);
+        case  5:
+            return bwxor(operand_1, operand_2);
+        case  6:
+            return shift_left(operand_1, operand_2);
+        case  7:
+            return shift_right_a(operand_1, operand_2);
+        case  8:
+            return shift_right_l(operand_1, operand_2);
+        case  9:
+            return equal(operand_1, operand_2);
+        case 10:
+            return not_equal(operand_1, operand_2);
+        case 11:
+            return less_than(operand_1, operand_2);
+        case 12:
+            return less_than_u(operand_1, operand_2);
+        case 13:
+            return greater_than(operand_1, operand_2);
+        case 14:
+            return greater_than_u(operand_1, operand_2);
+        case 15:
+            return shift12_add(operand_1, operand_2);
+     }
+}
