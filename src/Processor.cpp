@@ -35,67 +35,64 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
                     Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                     return op;
                 } else if(func7[0] == 1) {
-                    std::cout << "MUL operation" << std::endl;
+                    std::cout << "MUL instruction" << std::endl;
                     ALU_opcode = 2;
                     Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                     return op;
                 } else {
-                    std::cout << "Wrong operation (add)" << std::endl;
                     invalid_instruction = 1;
                     ALU_opcode = 0;
                     Operation op(ALU_opcode, 0, 0, 0, 1);
                     return op;
                 }
             } else if(func3 == 7) {
-                std::cout << "AND operation" << std::endl;
+                std::cout << "AND instruction" << std::endl;
                 ALU_opcode = 3;
                 Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                 return op;
             } else if(func3 == 6) {
-                std::cout << "OR operation" << std::endl;
+                std::cout << "OR instruction" << std::endl;
                 ALU_opcode = 4;
                 Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                 return op;
             } else if(func3 == 4) {
-                std::cout << "XOR operation" << std::endl;
+                std::cout << "XOR instruction" << std::endl;
                 ALU_opcode = 5;
                 Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                 return op;
             } else if(func3 == 2) {
-                std::cout << "SLT operation" << std::endl;
+                std::cout << "SLT instruction" << std::endl;
                 ALU_opcode = 11;
                 Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                 return op;
             } else if(func3 == 3) {
-                std::cout << "SLTU operation" << std::endl;
+                std::cout << "SLTU instruction" << std::endl;
                 ALU_opcode = 12;
                 Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                 return op;
             } else if(func3 == 5) {
                 if(func7[5] == 1) {
-                    std::cout << "SRA operation" << std::endl;
+                    std::cout << "SRA instruction" << std::endl;
                     ALU_opcode = 7;
                     Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                     return op;
                 } else if(func7 == 0) {
-                    std::cout << "SRL operation" << std::endl;
+                    std::cout << "SRL instruction" << std::endl;
                     ALU_opcode = 8;
                     Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                     return op;
                 } else {
-                    std::cout << "Wrong operation (right shift)" << std::endl;
                     invalid_instruction = 1;
                     ALU_opcode = 0;
                     Operation op(ALU_opcode, 0, 0, 0, 1);
                     return op;
                 }
             } else if(func3 == 1) {
-                std::cout << "SLL operation" << std::endl;
+                std::cout << "SLL instruction" << std::endl;
                 ALU_opcode = 6;
                 Operation op(ALU_opcode, rd, R[rs1], R[rs2], 1);
                 return op;           
             } else {
-                std::cout << "Wrong operation (arithm)" << std::endl;
                 invalid_instruction = 1;
                 ALU_opcode = 0;
                 Operation op(ALU_opcode, 0, 0, 0, 1);
@@ -117,60 +114,58 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             if(imm[11] == 1) { sext_imm.set_slc(12,temp); }
 
             if(func3 == 0) {
-                std::cout<< "ADDI operation" << std::endl;
+                std::cout<< "ADDI instruction" << std::endl;
                 ALU_opcode = 0;
                 Operation op(ALU_opcode, rd, R[rs1], sext_imm, 1);
                 return op;
             } else if(func3 == 7) {
-                std::cout << "ANDI operation" << std::endl;
+                std::cout << "ANDI instruction" << std::endl;
                 ALU_opcode = 3;
                 Operation op(ALU_opcode, rd, R[rs1], sext_imm, 1);
                 return op;
             } else if(func3 == 6) {
-                std::cout << "ORI operation" << std::endl;
+                std::cout << "ORI instruction" << std::endl;
                 ALU_opcode = 4;
                 Operation op(ALU_opcode, rd, R[rs1], sext_imm, 1);
                 return op;
             } else if(func3 == 4) {
-                std::cout << "XORI operation" << std::endl;
+                std::cout << "XORI instruction" << std::endl;
                 ALU_opcode = 5;
                 Operation op(ALU_opcode, rd, R[rs1], sext_imm, 1);
                 return op;
             } else if(func3 == 2) {
-                std::cout << "SLTI operation" << std::endl;
+                std::cout << "SLTI instruction" << std::endl;
                 ALU_opcode = 11;
                 Operation op(ALU_opcode, rd, R[rs1], sext_imm, 1);
                 return op;
             } else if(func3 == 3) {
-                std::cout << "SLTIU operation" << std::endl;
+                std::cout << "SLTIU instruction" << std::endl;
                 ALU_opcode = 12;
                 Operation op(ALU_opcode, rd, R[rs1], sext_imm, 1);
                 return op;           
             } else if(func3 == 5) {
                 if(imm[10] == 1) {
-                    std::cout << "SRAI operation" << std::endl;
+                    std::cout << "SRAI instruction" << std::endl;
                     ALU_opcode = 7;
                     Operation op(ALU_opcode, rd, R[rs1], imm.slc<5>(0), 1);
                     return op;
                 } else if(imm.slc<7>(5) == 0) {
-                    std::cout << "SRLI operation" << std::endl;
+                    std::cout << "SRLI instruction" << std::endl;
                     ALU_opcode = 8;
                     Operation op(ALU_opcode, rd, R[rs1], imm.slc<5>(0), 1);
                     return op;
                 } else {
-                    std::cout << "Wrong operation (right shift imm)" << std::endl;
                     invalid_instruction = 1;
                     ALU_opcode = 0;
                     Operation op(ALU_opcode, 0, 0, 0, 1);
                     return op;
                 }           
             } else if(func3 == 1) {
-                std::cout << "SLLI operation" << std::endl;
+                std::cout << "SLLI instruction" << std::endl;
                 ALU_opcode = 6;
                 Operation op(ALU_opcode, rd, R[rs1], imm, 1);
                 return op;           
             } else {
-                std::cout << "Wrong operation (arithm imm)" << std::endl;
                 invalid_instruction = 1;
                 ALU_opcode = 0;
                 Operation op(ALU_opcode, 0, 0, 0, 1);
@@ -181,7 +176,7 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
         case 55:
             {
             // lui
-            std::cout << "LUI operation" << std::endl;
+            std::cout << "LUI instruction" << std::endl;
             ac_int<32,true> rd = instruction.slc<5>(7);
             ac_int<32,true> imm = 0;
             ac_int<20,true> imm_part = instruction.slc<20>(12);
@@ -194,7 +189,7 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
         case 23:
             {
             // auipc
-            std::cout << "AUIPC operation" << std::endl;
+            std::cout << "AUIPC instruction" << std::endl;
             ac_int<32,true> rd = instruction.slc<5>(7);
             ac_int<32,true> imm = 0;
             ac_int<20,true> imm_part = instruction.slc<20>(12);
@@ -207,7 +202,7 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
         case 3:
             {
             // lw
-            std::cout << "LW operation" << std::endl;
+            std::cout << "LW instruction" << std::endl;
             ac_int<32,true> rd = instruction.slc<5>(7);
             ac_int<32,true> rs1 = instruction.slc<5>(15);
             ac_int<32,true> imm = instruction.slc<12>(20);
@@ -224,7 +219,7 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
         case 35:
             {
             // sw
-            std::cout << "SW operation" << std::endl;
+            std::cout << "SW instruction" << std::endl;
             ac_int<32,true> rs1 = instruction.slc<5>(15);
             ac_int<32,true> rs2 = instruction.slc<5>(20);
             // reconstruct S-type immediate
@@ -339,7 +334,6 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
                 Operation op(ALU_opcode, sext_imm, R[rs1], R[rs2], 0);
                 return op;  
             } else {
-                std::cout << "Wrong operation (branch)" << std::endl;
                 invalid_instruction = 1;
                 ALU_opcode = 0;
                 Operation op(ALU_opcode, 0, 0, 0, 1);
@@ -348,7 +342,6 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             break;
             }
         default:
-            std::cout << "Wrong operation (opcode)" << std::endl;
             invalid_instruction = 1;
             ALU_opcode = 0;
             Operation op(ALU_opcode, 0, 0, 0, 1);
