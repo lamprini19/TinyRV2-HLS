@@ -178,9 +178,11 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             // lui
             std::cout << "LUI operation" << std::endl;
             ac_int<32,true> rd = instruction.slc<5>(7);
-            ac_int<32,true> imm = instruction.slc<20>(12);
-            ALU_opcode = 6;
-            Operation op(ALU_opcode, rd, imm, 12, 1);
+            ac_int<32,true> imm = 0;
+            ac_int<20,true> imm_part = instruction.slc<20>(12);
+            imm.set_slc(12,imm_part);
+            ALU_opcode = 0;
+            Operation op(ALU_opcode, rd, imm, 0, 1);
             return op;
             break;
             }
@@ -189,8 +191,10 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             // auipc
             std::cout << "AUIPC operation" << std::endl;
             ac_int<32,true> rd = instruction.slc<5>(7);
-            ac_int<32,true> imm = instruction.slc<20>(12);
-            ALU_opcode = 15;
+            ac_int<32,true> imm = 0;
+            ac_int<20,true> imm_part = instruction.slc<20>(12);
+            imm.set_slc(12,imm_part);
+            ALU_opcode = 0;
             Operation op(ALU_opcode, rd, imm, PC, 1);
             return op;
             break;

@@ -25,9 +25,6 @@ class ALU {
     ac_int<32,true> greater_than(ac_int<32,true>, ac_int<32,true>);
     ac_int<32,true> greater_than_u(ac_int<32,true>, ac_int<32,true>);
 
-    // complex operations
-    ac_int<32,true> shift12_add(ac_int<32,true>, ac_int<32,true>);
-
 public:
     ac_int<32,true> operation(ac_int<32,true> operand_1,
                               ac_int<32,true> operand_2,

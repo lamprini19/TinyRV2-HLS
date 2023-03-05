@@ -73,12 +73,6 @@ ac_int<32, true> ALU::greater_than_u(ac_int<32,true> op1, ac_int<32,true> op2) {
     return uns1 >= uns2;
 }
 
-// Complex Operations
-ac_int<32,true> ALU::shift12_add(ac_int<32,true> op1, ac_int<32,true> op2) {
-    ac_int<32,true> shifted = shift_left(op1, 12);
-    return add(shifted, op2);
-}
-
 
 ac_int<32,true> ALU::operation(ac_int<32,true> operand_1,
                                ac_int<32,true> operand_2,
@@ -114,7 +108,5 @@ ac_int<32,true> ALU::operation(ac_int<32,true> operand_1,
             return greater_than(operand_1, operand_2);
         case 14:
             return greater_than_u(operand_1, operand_2);
-        case 15:
-            return shift12_add(operand_1, operand_2);
      }
 }
