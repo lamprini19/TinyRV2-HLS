@@ -238,11 +238,20 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             {
             // jal
             ac_int<32,true> rd = instruction.slc<5>(7);
-            ac_int<20,true> imm = instruction.slc<20>(12);
+            // reconstruct J-type immediate
+            ac_int<32,true> imm = 0;
+            ac_int<10,false> imm_part_1 = instruction.slc<10>(21);
+            ac_int<1,false> imm_part_2 = instruction[20];
+            ac_int<8,false> imm_part_3 = instruction.slc<8>(12);
+            ac_int<1,false> imm_part_4 = instruction[31];
+            imm.set_slc(1,imm_part_1);
+            imm.set_slc(11,imm_part_2);
+            imm.set_slc(12,imm_part_3);
+            imm.set_slc(20,imm_part_4);
             // sign extend
             ac_int<12,false> temp = -1;
             ac_int<32,true> sext_imm = imm;
-            if(imm[19] == 1) { sext_imm.set_slc(19,temp); }
+            if(imm[20] == 1) { sext_imm.set_slc(20,temp); }
             // create Operation object
             ALU_opcode = 0;
             Operation op(ALU_opcode, rd, PC, sext_imm, 4);
