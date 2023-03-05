@@ -41,6 +41,7 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
                     return op;
                 } else {
                     std::cout << "Wrong operation (add)" << std::endl;
+                    invalid_instruction = 1;
                     ALU_opcode = 0;
                     Operation op(ALU_opcode, 0, 0, 0, 1);
                     return op;
@@ -83,6 +84,7 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
                     return op;
                 } else {
                     std::cout << "Wrong operation (right shift)" << std::endl;
+                    invalid_instruction = 1;
                     ALU_opcode = 0;
                     Operation op(ALU_opcode, 0, 0, 0, 1);
                     return op;
@@ -94,6 +96,7 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
                 return op;           
             } else {
                 std::cout << "Wrong operation (arithm)" << std::endl;
+                invalid_instruction = 1;
                 ALU_opcode = 0;
                 Operation op(ALU_opcode, 0, 0, 0, 1);
                 return op;
@@ -156,6 +159,7 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
                     return op;
                 } else {
                     std::cout << "Wrong operation (right shift imm)" << std::endl;
+                    invalid_instruction = 1;
                     ALU_opcode = 0;
                     Operation op(ALU_opcode, 0, 0, 0, 1);
                     return op;
@@ -167,6 +171,7 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
                 return op;           
             } else {
                 std::cout << "Wrong operation (arithm imm)" << std::endl;
+                invalid_instruction = 1;
                 ALU_opcode = 0;
                 Operation op(ALU_opcode, 0, 0, 0, 1);
                 return op;
@@ -335,6 +340,7 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
                 return op;  
             } else {
                 std::cout << "Wrong operation (branch)" << std::endl;
+                invalid_instruction = 1;
                 ALU_opcode = 0;
                 Operation op(ALU_opcode, 0, 0, 0, 1);
                 return op;
@@ -343,6 +349,7 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             }
         default:
             std::cout << "Wrong operation (opcode)" << std::endl;
+            invalid_instruction = 1;
             ALU_opcode = 0;
             Operation op(ALU_opcode, 0, 0, 0, 1);
         }
@@ -405,10 +412,20 @@ bool Processor::run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[25
     PC = next_PC;
     std::cout << "Current PC: " << PC << std::endl;
     ac_int<32,false> instruction = read_instruction(instr_mem);
-    if(instruction == 0) { std::cout << "No instruction found, exit.\n"; return 0; }
+    if(instruction == 0) {
+        std::cout << "No instruction found, exit.\n";
+        return 0;
+    }
+
     Operation operation = decode_read(instruction);
+    if(invalid_instruction) {
+        std::cout << "Invalid instruction, exit.\n";
+        return 0;
+    }
+
     next_PC = update_pc(operation);
     if(operation.control == 0 || operation.control == 4) { return 1; }
+
     ac_int<32,true> result = execute(operation);
     if(operation.control == 2) {
         write_back(operation.destination, memory_read(data_mem, result));

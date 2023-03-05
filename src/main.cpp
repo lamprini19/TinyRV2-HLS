@@ -2,6 +2,11 @@
 #include "Processor.h"
 
 int main() {
+    /** Test 1 **/
+    std::cout << std::string(72,'-') << std::endl
+              << "Test 1: Simple program to test individual commands."
+              << std::endl << std::string(72,'-') << std::endl;
+
     // Initialize memories
     ac_int<32,false> instr_mem[256];
     ac::init_array<AC_VAL_0>(instr_mem, 256);
@@ -10,7 +15,7 @@ int main() {
 
     // Initialize some memory addresses
     data_mem[71] = -600;
-    
+
     // Write program
     instr_mem[50] = 0b00000100011000000000001000010011; // ADDI R4, R0, 70
     instr_mem[51] = 0b00000000010000100010001010000011; // LW   R5, mem[ R4 + 1 ]
@@ -53,10 +58,33 @@ int main() {
     instr_mem[88] = 0b0;
 
     Processor processor = Processor();
-    
+
     while(processor.run(instr_mem, data_mem));
 
-    return 0;
+    /** Test 2 **/
+    std::cout << std::endl << std::string(72,'-') << std::endl
+              << "Test 2: Test invalid instruction response."
+              << std::endl << std::string(72,'-') << std::endl;
 
+    // Initialize memories
+    ac_int<32,false> instr_mem_2[256];
+    ac::init_array<AC_VAL_0>(instr_mem_2, 256);
+    ac_int<32,true> data_mem_2[256];
+    ac::init_array<AC_VAL_0>(data_mem_2, 256);
+
+    instr_mem_2[50] = 0b00000100011000000000001001111111;
+
+    Processor processor_2 = Processor();
+    std::cout << "Initial Processor's invalid_instruction signal: "
+              << processor_2.invalid_instruction
+              << std::endl;
+
+    while(processor_2.run(instr_mem_2, data_mem_2));
+
+    std::cout << "Processor's invalid_instruction signal: "
+              << processor_2.invalid_instruction
+              << std::endl;
+
+    return 0;
 }
 
