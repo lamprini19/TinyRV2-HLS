@@ -6,7 +6,7 @@
 #include <iostream>
 
 ac_int<32,false> Processor::read_instruction(ac_int<32,false> instr_mem[256]) {
-    return instr_mem[PC];
+    return instr_mem[PC.slc<30>(2)];
 }
 
 Operation Processor::decode_read(ac_int<32,false> instruction) {
@@ -347,13 +347,13 @@ ac_int<32,false> Processor::update_pc(Operation op) {
         if(result[0]) {
             return PC + op.destination;
         } else {
-            return PC + 1;
+            return PC + 4;
         }
     } else if(op.control == 4) {
         // call jump function
         ac_int<5,false> reg_addr = op.destination.slc<5>(0);
-        R[reg_addr] = PC+1;
-        std::cout << PC+1 << " will be stored to register "
+        R[reg_addr] = PC + 4;
+        std::cout << PC + 4 << " will be stored to register "
                   << reg_addr << std::endl;
 
         ac_int<32,false> result = alu.operation(op.operand_1,
@@ -365,7 +365,7 @@ ac_int<32,false> Processor::update_pc(Operation op) {
                   << result.to_string(AC_BIN,false,true) << " (" << result << ")\n";
         return result;
     } else {
-        return PC + 1;
+        return PC + 4;
     }
 }
 
