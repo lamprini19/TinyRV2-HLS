@@ -34,46 +34,35 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
 
             if(func3 == 0) {
                 if(func7 == 0) {
-                    std::cout << "ADD instruction" << std::endl;
                     ALU_opcode = 0;
     	        } else if(func7[5] == 1) {
-                    std::cout << "SUB instruction" << std::endl;
                     ALU_opcode = 1;
                 } else if(func7[0] == 1) {
-                    std::cout << "MUL instruction" << std::endl;
                     ALU_opcode = 2;
                 } else {
                     invalid_instruction = 1;
                     ALU_opcode = 0;
                 }
             } else if(func3 == 7) {
-                std::cout << "AND instruction" << std::endl;
                 ALU_opcode = 3;
             } else if(func3 == 6) {
-                std::cout << "OR instruction" << std::endl;
                 ALU_opcode = 4;
             } else if(func3 == 4) {
-                std::cout << "XOR instruction" << std::endl;
                 ALU_opcode = 5;
             } else if(func3 == 2) {
-                std::cout << "SLT instruction" << std::endl;
                 ALU_opcode = 11;
             } else if(func3 == 3) {
-                std::cout << "SLTU instruction" << std::endl;
                 ALU_opcode = 12;
             } else if(func3 == 5) {
                 if(func7[5] == 1) {
-                    std::cout << "SRA instruction" << std::endl;
                     ALU_opcode = 7;
                 } else if(func7 == 0) {
-                    std::cout << "SRL instruction" << std::endl;
                     ALU_opcode = 8;
                 } else {
                     invalid_instruction = 1;
                     ALU_opcode = 0;
                 }
             } else if(func3 == 1) {
-                std::cout << "SLL instruction" << std::endl;
                 ALU_opcode = 6;
             } else {
                 invalid_instruction = 1;
@@ -100,30 +89,22 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             op_control = 1;
 
             if(func3 == 0) {
-                std::cout<< "ADDI instruction" << std::endl;
                 ALU_opcode = 0;
             } else if(func3 == 7) {
-                std::cout << "ANDI instruction" << std::endl;
                 ALU_opcode = 3;
             } else if(func3 == 6) {
-                std::cout << "ORI instruction" << std::endl;
                 ALU_opcode = 4;
             } else if(func3 == 4) {
-                std::cout << "XORI instruction" << std::endl;
                 ALU_opcode = 5;
             } else if(func3 == 2) {
-                std::cout << "SLTI instruction" << std::endl;
                 ALU_opcode = 11;
             } else if(func3 == 3) {
-                std::cout << "SLTIU instruction" << std::endl;
                 ALU_opcode = 12;
             } else if(func3 == 5) {
                 if(imm[10] == 1) {
-                    std::cout << "SRAI instruction" << std::endl;
                     ALU_opcode = 7;
                     op_operand_2 = imm.slc<5>(0);
                 } else if(imm.slc<7>(5) == 0) {
-                    std::cout << "SRLI instruction" << std::endl;
                     ALU_opcode = 8;
                     op_operand_2 = imm.slc<5>(0);
                 } else {
@@ -131,22 +112,17 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
                     ALU_opcode = 0;
                 }           
             } else if(func3 == 1) {
-                std::cout << "SLLI instruction" << std::endl;
                 ALU_opcode = 6;
-                Operation op(ALU_opcode, rd, R[rs1], imm, 1);
-                return op;           
+                op_operand_2 = imm;
             } else {
                 invalid_instruction = 1;
                 ALU_opcode = 0;
-                Operation op(ALU_opcode, 0, 0, 0, 1);
-                return op;
             }
             break;
             }
         case 55:
             {
             // lui
-            std::cout << "LUI instruction" << std::endl;
             ac_int<32,true> rd = instruction.slc<5>(7);
             ac_int<32,true> imm = 0;
             ac_int<20,true> imm_part = instruction.slc<20>(12);
@@ -163,7 +139,6 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
         case 23:
             {
             // auipc
-            std::cout << "AUIPC instruction" << std::endl;
             ac_int<32,true> rd = instruction.slc<5>(7);
             ac_int<32,true> imm = 0;
             ac_int<20,true> imm_part = instruction.slc<20>(12);
@@ -180,7 +155,6 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
         case 3:
             {
             // lw
-            std::cout << "LW instruction" << std::endl;
             ac_int<32,true> rd = instruction.slc<5>(7);
             ac_int<32,true> rs1 = instruction.slc<5>(15);
             ac_int<32,true> imm = instruction.slc<12>(20);
@@ -200,7 +174,6 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
         case 35:
             {
             // sw
-            std::cout << "SW instruction" << std::endl;
             ac_int<32,true> rs1 = instruction.slc<5>(15);
             ac_int<32,true> rs2 = instruction.slc<5>(20);
             // reconstruct S-type immediate
@@ -291,27 +264,15 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
 
             if(func3 == 0) {
                 ALU_opcode = 9;
-                std::cout << "If " << R[rs1] << " == " << R[rs2]
-                          << " then PC <- PC + " << sext_imm << std::endl;
             } else if(func3 == 1) {
-                std::cout << "If " << R[rs1] << " != " << R[rs2]
-                          << " then PC <- PC + " << sext_imm << std::endl;
                 ALU_opcode = 10;
             } else if(func3 == 4) {
-                std::cout << "If " << R[rs1] << " <s " << R[rs2]
-                          << " then PC <- PC + " << sext_imm << std::endl;
                 ALU_opcode = 11;
             } else if(func3 == 5) {
-                std::cout << "If " << R[rs1] << " >=s " << R[rs2]
-                          << " then PC <- PC + " << sext_imm << std::endl;
                 ALU_opcode = 13;
             } else if(func3 == 6) {
-                std::cout << "If " << R[rs1] << " <u " << R[rs2]
-                          << " then PC <- PC + " << sext_imm << std::endl;
                 ALU_opcode = 12;
             } else if(func3 == 7) {
-                std::cout << "If " << R[rs1] << " >=u " << R[rs2]
-                          << " then PC <- PC + " << sext_imm << std::endl;
                 ALU_opcode = 14;
             } else {
                 invalid_instruction = 1;
@@ -346,10 +307,6 @@ ac_int<32,false> Processor::update_pc(Operation op) {
         ac_int<32,false> result = alu.operation(op.operand_1,
                                                 op.operand_2,
                                                 op.ALU_opcode);
-
-        std::cout << "Jump to instruction address: " << result << std::endl;
-        std::cout << "Store " << PC+4 << " in " << reg_addr << std::endl;
-
         return result;
     } else {
         return PC + 4;
@@ -379,19 +336,27 @@ void Processor::write_back(ac_int<32,false> destination_reg, ac_int<32,true> val
 bool Processor::run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[256]) {
 
     R[0] = 0;
+    PC = next_PC;
+
+    #ifndef _SYNTHESIS_
     std::cout << std::string(72,'-');
     std::cout << std::endl;
-    PC = next_PC;
     std::cout << "Current PC: " << PC << std::endl;
+    #endif
+
     ac_int<32,false> instruction = read_instruction(instr_mem);
     if(instruction == 0) {
+        #ifndef _SYNTHESIS_
         std::cout << "No instruction found, exit.\n";
+        #endif
         return 0;
     }
 
     Operation operation = decode_read(instruction);
     if(invalid_instruction) {
+        #ifndef _SYNTHESIS_
         std::cout << "Invalid instruction, exit.\n";
+        #endif
         return 0;
     }
 
@@ -409,6 +374,7 @@ bool Processor::run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[25
 
 
     // tests
+    #ifndef _SYNTHESIS_
     std::cout << std::endl;
 
     std::cout << "Instruction type: " << operation.control << std::endl
@@ -443,6 +409,7 @@ bool Processor::run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[25
               << operation.destination
               << ": " << R[operation.destination]
               << std::endl;
+    #endif
 
     return 1;
 }
