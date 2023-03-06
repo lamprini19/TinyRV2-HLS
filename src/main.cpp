@@ -60,7 +60,7 @@ int main() {
 
     while(processor.run(instr_mem, data_mem));
 
-    /** Test 2 **/
+    /** Test 2 - Wrong Opcode **/
     std::cout << std::endl << std::string(72,'-') << std::endl
               << "Test 2: Test invalid instruction response."
               << std::endl << std::string(72,'-') << std::endl;
@@ -82,8 +82,46 @@ int main() {
 
     std::cout << "Processor's invalid_instruction signal: "
               << processor_2.invalid_instruction
-              << std::endl;
+              << std::endl << std::endl << std::endl;
+
+    /** Test 3 - Fibonacci **/
+    std::cout << std::endl << std::string(72,'-') << std::endl
+              << "Test 3: Fibonacci numbers"
+              << std::endl << std::string(72,'-') << std::endl;
+    // main
+    instr_mem[50] = 0b00000000000000000000011000010011; // ADDI R12, R0 , 0
+    instr_mem[51] = 0b00000000000100000000010110010011; // ADDI R11, R0 , 1
+    instr_mem[52] = 0b00000000000000000000010000010011; // ADDI R8 , R0 , 0
+    instr_mem[53] = 0b00001101110000000000100100010011; // ADDI R18, R0 , loop (220)
+    instr_mem[54] = 0b00000000111100000000010010010011; // ADDI R9 , R0 , 15
+    // loop
+    instr_mem[55] = 0b00001000100101000101011001100011; // BGE  R8 , R9 , 140
+    instr_mem[56] = 0b00010010110000000000000011100111; // JALR R1 , R0 , fibo (300)
+    instr_mem[57] = 0b00000000001001000001001110010011; // SLLI R7 , R8 , 2
+    instr_mem[58] = 0b00000000101000111010101000100011; // SW   R10, R7 , bgn (20)
+    instr_mem[59] = 0b00000000000101000000010000010011; // ADDI R8 , R8 , 1
+    instr_mem[60] = 0b00000000000010010000100111100111; // JALR R19, R18, 0
+    // end of program
+    instr_mem[61] = 0b0;
+    // fibonacci calculations
+    instr_mem[75] = 0b00000000110001011000010100110011; // ADD  R10, R11, R12
+    instr_mem[76] = 0b00000000000001011000011000110011; // ADD  R12, R11, R0
+    instr_mem[77] = 0b00000000000001010000010110110011; // ADD  R11, R10, R0
+    instr_mem[78] = 0b00000000000000001000100111100111; // JALR R19, R1,  0   
+ 
+    Processor processor_3 = Processor();
+    while(processor_3.run(instr_mem, data_mem));
+    std::cout << std::endl << "Fibonacci numbers read from memory:" << std::endl;
+    int expected_fibo[15] = {1,2,3,5,8,13,21,34,55,89,144,233,377,610,987};
+    for(int i=0; i<15; i++) {
+        std::cout << data_mem[5+i] << " ("
+                  << ((data_mem[5+i]==expected_fibo[i]) ? "correct)" : "false)")
+                  << std::endl;
+
+    }
 
     return 0;
 }
+
+
 

@@ -234,7 +234,7 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             if(imm[11] == 1) { sext_imm.set_slc(12,temp); }
             // create Operation object
             ALU_opcode = 0;
-            Operation op(ALU_opcode, rs2, R[rs1], sext_imm, 3);
+            Operation op(ALU_opcode, R[rs2], R[rs1], sext_imm, 3);
             return op;
             break;
             }
@@ -370,6 +370,7 @@ ac_int<32,false> Processor::update_pc(Operation op) {
                                                 op.ALU_opcode);
 
         std::cout << "Jump to instruction address: " << result << std::endl;
+        std::cout << "Store " << PC+4 << " in " << reg_addr << std::endl;
 
         return result;
     } else {
@@ -445,7 +446,7 @@ bool Processor::run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[25
               << std::endl;
 
     if(operation.control == 3) {
-        std::cout << "Wrote " << operation.operand_2
+        std::cout << "Wrote " << operation.destination
                   << " on memory address " << result
                   << " (" << result.to_string(AC_HEX,false,false)
                   << ")" << std::endl;
