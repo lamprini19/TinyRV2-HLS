@@ -195,8 +195,6 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             op_operand_2 = R[rs1];
             op_control = 2;
 
-            Operation op(ALU_opcode, rd, imm, R[rs1], 2);
-            return op;
             break;
             }
         case 35:
@@ -240,7 +238,7 @@ Operation Processor::decode_read(ac_int<32,false> instruction) {
             // sign extend
             ac_int<12,false> temp = -1;
             ac_int<32,true> sext_imm = imm;
-            if(imm[20] == 1) { sext_imm.set_slc(20,temp); }
+            if(imm[20] == 1) { sext_imm.set_slc(11,temp); }
 
             ALU_opcode = 0;
             op_destination = rd;

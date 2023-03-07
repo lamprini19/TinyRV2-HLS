@@ -108,5 +108,7 @@ ac_int<32,true> ALU::operation(ac_int<32,true> operand_1,
             return greater_than(operand_1, operand_2);
         case 14:
             return greater_than_u(operand_1, operand_2);
+        default:
+            return 0;
      }
 }
