@@ -348,7 +348,7 @@ public:
         invalid_instruction = 0;
     }
 
-    bool run(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[256]) {
+    bool CSS_BLOCK(run)(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[256]) {
 
         R[0] = 0;
         PC = next_PC;

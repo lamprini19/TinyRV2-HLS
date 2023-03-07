@@ -1,9 +1,9 @@
 #include "ac_int.h"
 #include "Processor.h"
 
-//#include "mc_scverify.h"
+#include "mc_scverify.h"
 
-int main() {
+int CCS_MAIN(int argc, char** argv) {
     /** Test 1 **/
     std::cout << std::string(72,'-') << std::endl
               << "Test 1: Simple program to test individual commands."
@@ -121,7 +121,7 @@ int main() {
                   << std::endl;
 
     }
-    return 0;
+    CCS_RETURN(0);
 }
 
 
