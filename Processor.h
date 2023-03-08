@@ -5,12 +5,11 @@
 #include "Operation.h"
 #include "ALU.h"
 
-#include "mc_verify.h"
+#include "mc_scverify.h"
 
 class Processor {
     ac_int<32,true> R[32];
     ac_int<32,false> PC;
-    ac_int<32,false> next_PC;
     ALU alu;
 
 public:
@@ -18,7 +17,7 @@ public:
 
 private:
     ac_int<32,false> read_instruction(ac_int<32,false> instr_mem[256]) {
-        return instr_mem[next_PC.slc<30>(2)];
+        return instr_mem[PC.slc<30>(2)];
     }
 
     Operation decode_read(ac_int<32,false> instruction) {
@@ -82,7 +81,7 @@ private:
                 }
 
                 // update PC
-                next_PC = PC + 4;
+                PC = PC + 4;
 
                 break;
                 }
@@ -136,7 +135,7 @@ private:
                 }
 
                 // update PC
-                next_PC = PC + 4;
+                PC = PC + 4;
 
                 break;
                 }
@@ -155,7 +154,7 @@ private:
                 op_control = 1;
 
                 // update PC
-                next_PC = PC + 4;
+                PC = PC + 4;
 
                 break;
                 }
@@ -174,7 +173,7 @@ private:
                 op_control = 1;
 
                 // update PC
-                next_PC = PC + 4;
+                PC = PC + 4;
 
                 break;
                 }
@@ -196,7 +195,7 @@ private:
                 op_control = 2;
 
                 // update PC
-                next_PC = PC + 4;
+                PC = PC + 4;
 
                 break;
                 }
@@ -223,7 +222,7 @@ private:
                 op_control = 3;
                 
                 // update PC
-                next_PC = PC + 4;
+                PC = PC + 4;
 
                 break;
                 }
@@ -256,7 +255,7 @@ private:
                 // update PC
                 ac_int<5,false> reg_addr = op_destination.slc<5>(0);
                 R[reg_addr] = PC + 4;
-                next_PC = op_operand_1 + op_operand_2;
+                PC = op_operand_1 + op_operand_2;
 
                 break;
                 }
@@ -280,7 +279,7 @@ private:
                 // update PC
                 ac_int<5,false> reg_addr = op_destination.slc<5>(0);
                 R[reg_addr] = PC + 4;
-                next_PC = op_operand_1 + op_operand_2;
+                PC = op_operand_1 + op_operand_2;
                 
                 break;
                 }
@@ -307,43 +306,42 @@ private:
                 op_operand_1 = R[rs1];
                 op_operand_2 = R[rs2];
                 op_control = 0;
+                ALU_opcode = 0;
                 ac_int<1,false> result;
 
                 if(func3 == 0) {
-                    ALU_opcode = 9;
                     result = (op_operand_1 == op_operand_2);
                 } else if(func3 == 1) {
-                    ALU_opcode = 10;
                     result = (op_operand_1 != op_operand_2);
                 } else if(func3 == 4) {
-                    ALU_opcode = 11;
                     result = (op_operand_1 < op_operand_2);
                 } else if(func3 == 5) {
-                    ALU_opcode = 13;
                     result = (op_operand_1 >= op_operand_2);
                 } else if(func3 == 6) {
-                    ALU_opcode = 12;
                     result = (op_operand_1 < op_operand_2);
                 } else if(func3 == 7) {
-                    ALU_opcode = 14;
                     result = (op_operand_1 >= op_operand_2);
                 } else {
                     invalid_instruction = 1;
-                    ALU_opcode = 0;
+                    result = 0;
                 }
 
                 // update PC
                 if(result[0]) {
-                    next_PC = PC + op_destination;
+                    PC = PC + op_destination;
                 } else {
-                    next_PC = PC + 4;
+                    PC = PC + 4;
                 }
 
                 break;
                 }
             default:
-                invalid_instruction = 1;
+                op_destination = 0;
+                op_operand_1 = 0;
+                op_operand_2 = 0;
+                op_control = 0;
                 ALU_opcode = 0;
+                invalid_instruction = 1;
             }
         Operation op(ALU_opcode, op_destination, op_operand_1, op_operand_2, op_control);
         return op;
@@ -368,8 +366,8 @@ private:
 
 public:
     Processor() {
-        next_PC = 200;
-        std::cout << "Initial PC is: " << next_PC << std::endl;
+        PC = 200;
+        std::cout << "Initial PC is: " << PC << std::endl;
         R[0] = 0;
         invalid_instruction = 0;
     }
@@ -377,7 +375,6 @@ public:
     bool CCS_BLOCK(run)(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[256]) {
 
         R[0] = 0;
-        PC = next_PC;
 
         #ifndef _SYNTHESIS_
         std::cout << std::string(72,'-');
