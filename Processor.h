@@ -16,7 +16,7 @@ public:
 
 private:
     ac_int<32,false> read_instruction(ac_int<32,false> instr_mem[256]) {
-        return instr_mem[PC.slc<30>(2)];
+        return instr_mem[next_PC.slc<30>(2)];
     }
 
     Operation decode_read(ac_int<32,false> instruction) {
@@ -78,6 +78,10 @@ private:
                     invalid_instruction = 1;
                     ALU_opcode = 0;
                 }
+
+                // update PC
+                next_PC = PC + 4;
+
                 break;
                 }
             case 19:
@@ -128,6 +132,10 @@ private:
                     invalid_instruction = 1;
                     ALU_opcode = 0;
                 }
+
+                // update PC
+                next_PC = PC + 4;
+
                 break;
                 }
             case 55:
@@ -144,6 +152,9 @@ private:
                 op_operand_2 = 0;
                 op_control = 1;
 
+                // update PC
+                next_PC = PC + 4;
+
                 break;
                 }
             case 23:
@@ -159,6 +170,9 @@ private:
                 op_operand_1 = imm;
                 op_operand_2 = PC;
                 op_control = 1;
+
+                // update PC
+                next_PC = PC + 4;
 
                 break;
                 }
@@ -178,6 +192,9 @@ private:
                 op_operand_1 = imm;
                 op_operand_2 = R[rs1];
                 op_control = 2;
+
+                // update PC
+                next_PC = PC + 4;
 
                 break;
                 }
@@ -202,6 +219,10 @@ private:
                 op_operand_1 = R[rs1];
                 op_operand_2 = sext_imm;
                 op_control = 3;
+                
+                // update PC
+                next_PC = PC + 4;
+
                 break;
                 }
             case 111:
@@ -223,11 +244,21 @@ private:
                 ac_int<32,true> sext_imm = imm;
                 if(imm[20] == 1) { sext_imm.set_slc(20,temp); }
 
+
                 ALU_opcode = 0;
                 op_destination = rd;
                 op_operand_1 = PC;
                 op_operand_2 = sext_imm;
                 op_control = 4;
+
+                // update PC
+                ac_int<5,false> reg_addr = op_destination.slc<5>(0);
+                R[reg_addr] = PC + 4;
+                ac_int<32,false> result = alu.operation(op_operand_1,
+                                                        op_operand_2,
+                                                        ALU_opcode);
+                next_PC = result;
+
                 break;
                 }
             case 103:
@@ -246,6 +277,15 @@ private:
                 op_operand_1 = R[rs1];
                 op_operand_2 = sext_imm;
                 op_control = 4;
+
+                // update PC
+                ac_int<5,false> reg_addr = op_destination.slc<5>(0);
+                R[reg_addr] = PC + 4;
+                ac_int<32,false> result = alu.operation(op_operand_1,
+                                                        op_operand_2,
+                                                        ALU_opcode);
+                next_PC = result;
+                
                 break;
                 }
             case 99:
@@ -288,6 +328,17 @@ private:
                     invalid_instruction = 1;
                     ALU_opcode = 0;
                 }
+
+                // update PC
+                ac_int<32,false> result = alu.operation(op_operand_1,
+                                                    op_operand_2,
+                                                    ALU_opcode);
+                if(result[0]) {
+                    next_PC = PC + o_destination;
+                } else {
+                    next_PC = PC + 4;
+                }
+
                 break;
                 }
             default:
@@ -296,31 +347,6 @@ private:
             }
         Operation op(ALU_opcode, op_destination, op_operand_1, op_operand_2, op_control);
         return op;
-    }
-
-    ac_int<32,false> update_pc(Operation op) {
-        if(op.control == 0) {
-            // call branch function
-            ac_int<32,false> result = alu.operation(op.operand_1,
-                                                    op.operand_2,
-                                                    op.ALU_opcode);
-            if(result[0]) {
-                return PC + op.destination;
-            } else {
-                return PC + 4;
-            }
-        } else if(op.control == 4) {
-            // call jump function
-            ac_int<5,false> reg_addr = op.destination.slc<5>(0);
-            R[reg_addr] = PC + 4;
-
-            ac_int<32,false> result = alu.operation(op.operand_1,
-                                                    op.operand_2,
-                                                    op.ALU_opcode);
-            return result;
-        } else {
-            return PC + 4;
-        }
     }
 
     ac_int<32,true> execute(Operation op) {
