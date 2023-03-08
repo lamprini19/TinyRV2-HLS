@@ -386,12 +386,6 @@ public:
         #endif
 
         ac_int<32,false> instruction = read_instruction(instr_mem);
-        if(instruction == 0) {
-            #ifndef _SYNTHESIS_
-            std::cout << "No instruction found, exit.\n";
-            #endif
-            return 0;
-        }
 
         Operation operation = decode_read(instruction);
         if(invalid_instruction) {
@@ -401,7 +395,6 @@ public:
             return 0;
         }
 
-        next_PC = update_pc(operation);
         if(operation.control == 0 || operation.control == 4) { return 1; }
 
         ac_int<32,true> result = execute(operation);
