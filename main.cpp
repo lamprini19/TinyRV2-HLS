@@ -3,7 +3,7 @@
 
 #include "mc_scverify.h"
 
-int CCS_MAIN(int argc, char** argv) {
+CCS_MAIN(int argc, char** argv) {
     /** Test 1 **/
     std::cout << std::string(72,'-') << std::endl
               << "Test 1: Simple program to test individual commands."

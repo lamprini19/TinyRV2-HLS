@@ -5,6 +5,8 @@
 #include "Operation.h"
 #include "ALU.h"
 
+#include "mc_verify.h"
+
 class Processor {
     ac_int<32,true> R[32];
     ac_int<32,false> PC;
@@ -254,10 +256,7 @@ private:
                 // update PC
                 ac_int<5,false> reg_addr = op_destination.slc<5>(0);
                 R[reg_addr] = PC + 4;
-                ac_int<32,false> result = alu.operation(op_operand_1,
-                                                        op_operand_2,
-                                                        ALU_opcode);
-                next_PC = result;
+                next_PC = op_operand_1 + op_operand_2;
 
                 break;
                 }
@@ -270,7 +269,7 @@ private:
                 // sign extend
                 ac_int<20,false> temp = -1;
                 ac_int<32,true> sext_imm = imm;
-                if(imm[11] == 1) { sext_imm.set_slc(20,temp); }
+                if(imm[11] == 1) { sext_imm.set_slc(12,temp); }
                 // create Operation object
                 ALU_opcode = 0;
                 op_destination = rd;
@@ -281,10 +280,7 @@ private:
                 // update PC
                 ac_int<5,false> reg_addr = op_destination.slc<5>(0);
                 R[reg_addr] = PC + 4;
-                ac_int<32,false> result = alu.operation(op_operand_1,
-                                                        op_operand_2,
-                                                        ALU_opcode);
-                next_PC = result;
+                next_PC = op_operand_1 + op_operand_2;
                 
                 break;
                 }
@@ -311,30 +307,34 @@ private:
                 op_operand_1 = R[rs1];
                 op_operand_2 = R[rs2];
                 op_control = 0;
+                ac_int<1,false> result;
 
                 if(func3 == 0) {
                     ALU_opcode = 9;
+                    result = (op_operand_1 == op_operand_2);
                 } else if(func3 == 1) {
                     ALU_opcode = 10;
+                    result = (op_operand_1 != op_operand_2);
                 } else if(func3 == 4) {
                     ALU_opcode = 11;
+                    result = (op_operand_1 < op_operand_2);
                 } else if(func3 == 5) {
                     ALU_opcode = 13;
+                    result = (op_operand_1 >= op_operand_2);
                 } else if(func3 == 6) {
                     ALU_opcode = 12;
+                    result = (op_operand_1 < op_operand_2);
                 } else if(func3 == 7) {
                     ALU_opcode = 14;
+                    result = (op_operand_1 >= op_operand_2);
                 } else {
                     invalid_instruction = 1;
                     ALU_opcode = 0;
                 }
 
                 // update PC
-                ac_int<32,false> result = alu.operation(op_operand_1,
-                                                    op_operand_2,
-                                                    ALU_opcode);
                 if(result[0]) {
-                    next_PC = PC + o_destination;
+                    next_PC = PC + op_destination;
                 } else {
                     next_PC = PC + 4;
                 }
@@ -374,7 +374,7 @@ public:
         invalid_instruction = 0;
     }
 
-    bool CSS_BLOCK(run)(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[256]) {
+    bool CCS_BLOCK(run)(ac_int<32,false> instr_mem[256], ac_int<32,true> data_mem[256]) {
 
         R[0] = 0;
         PC = next_PC;
@@ -420,20 +420,20 @@ public:
                 << " and " << operation.operand_2
                 << " is " << result
                 << " or in binary: "
-                << result.to_string(AC_BIN,false,true)
+                << result.to_string(AC_BIN,false)
                 << std::endl;
 
         if(operation.control == 3) {
             std::cout << "Wrote " << operation.destination
                     << " on memory address " << result
-                    << " (" << result.to_string(AC_HEX,false,false)
+                    << " (" << result.to_string(AC_HEX,false)
                     << ")" << std::endl;
         }
 
         if(operation.control == 2) {
             std::cout << "Read value " << memory_read(data_mem,result)
                     << "from memory address " << result
-                    << " (" << result.to_string(AC_HEX,false,false) << ")" 
+                    << " (" << result.to_string(AC_HEX,false) << ")" 
                     << " in register " << operation.destination
                     << std::endl;
         }
